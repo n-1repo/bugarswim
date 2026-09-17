@@ -44,3 +44,4 @@ next-env.d.ts
 mvp/node_modules
 mvp/dist
 mvp/*.tsbuildinfo
+__pycache__/
