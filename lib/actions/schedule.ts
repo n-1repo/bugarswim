@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireActionRole } from "@/lib/auth/guard";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { classSchema } from "@/lib/validations/schedule";
@@ -67,6 +68,7 @@ export async function deleteClassForm(formData: FormData): Promise<void> {
   const supabase = await createServerSupabaseClient();
   await supabase.from("classes").delete().eq("id", classId);
   revalidatePath("/admin/schedule");
+  redirect("/admin/schedule");
 }
 
 export async function addBooking(
