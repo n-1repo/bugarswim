@@ -4,6 +4,8 @@ Swimming club management app: membership, scheduling, attendance, billing,
 cash ledger, coach payroll, and promo announcements, for admin/coach/parent
 roles.
 
+Now Live at https://n-1repo.github.io/bugarswim/
+
 Stack: Next.js (App Router) + TypeScript, Supabase Postgres with Row Level
 Security, Tailwind CSS, Vercel deployment.
 
