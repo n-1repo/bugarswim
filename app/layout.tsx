@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend, Source_Sans_3 } from "next/font/google";
 import { Toaster } from "sonner";
+import { CLUB_NAME } from "@/lib/config";
 import "./globals.css";
 
 const heading = Lexend({
@@ -16,7 +17,7 @@ const sans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Bugarswim",
+  title: CLUB_NAME,
   description: "Manajemen klub renang anak",
 };
 
