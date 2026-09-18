@@ -1,4 +1,5 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getSession, logout } from "@/lib/auth";
 
@@ -18,10 +19,12 @@ export function AppShell({ navItems, roleLabel }: { navItems: NavItem[]; roleLab
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2">
-          <span className="font-semibold">Bugarswim (Demo)</span>
-          <span className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+          <span className="font-heading text-base font-semibold tracking-tight text-primary">
+            Bugarswim <span className="text-muted-foreground">(Demo)</span>
+          </span>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
             {roleLabel}
           </span>
         </div>
@@ -33,15 +36,21 @@ export function AppShell({ navItems, roleLabel }: { navItems: NavItem[]; roleLab
         </div>
       </header>
       <div className="flex flex-1 flex-col sm:flex-row">
-        <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border p-2 sm:w-56 sm:flex-col sm:border-b-0 sm:border-r sm:p-4">
+        <nav className="flex shrink-0 gap-1 overflow-x-auto bg-sidebar p-2 sm:w-56 sm:flex-col sm:gap-0.5 sm:border-r sm:border-sidebar-border sm:p-4">
           {navItems.map((item) => (
-            <Link
+            <NavLink
               key={item.to}
               to={item.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+              end={item.to.split("/").length <= 2}
+              className={({ isActive }) =>
+                cn(
+                  "shrink-0 rounded-md px-3 py-2 text-sm font-medium text-sidebar-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                )
+              }
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
         </nav>
         <main className="flex-1 p-4 sm:p-6">
