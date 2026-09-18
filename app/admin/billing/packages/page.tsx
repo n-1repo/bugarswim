@@ -26,6 +26,7 @@ export default async function PackagesPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Paket Keanggotaan</h1>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Paket</h2>
       <Table>
         <TableHeader>
           <TableRow>

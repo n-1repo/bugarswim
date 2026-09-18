@@ -1,9 +1,9 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveChildren, getActivePackages } from "@/lib/data/lookups";
 import { cancelSubscriptionForm } from "@/lib/actions/billing";
+import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -35,6 +35,7 @@ export default async function SubscriptionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Langganan</h1>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Langganan</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -42,7 +43,7 @@ export default async function SubscriptionsPage() {
             <TableHead>Paket</TableHead>
             <TableHead>Mulai</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,9 +69,14 @@ export default async function SubscriptionsPage() {
                   {row.status === "active" ? (
                     <form action={cancelSubscriptionForm}>
                       <input type="hidden" name="subscriptionId" value={row.id} />
-                      <Button type="submit" variant="ghost" size="sm">
-                        Batalkan
-                      </Button>
+                      <ActionSubmitButton
+                        variant="ghost"
+                        size="sm"
+                        confirmMessage="Batalkan langganan ini? Tindakan ini tidak bisa dibatalkan."
+                        successMessage="Langganan dibatalkan"
+                      >
+                        Batalkan Langganan
+                      </ActionSubmitButton>
                     </form>
                   ) : null}
                 </TableCell>

@@ -1,7 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { deletePromoForm } from "@/lib/actions/promo";
+import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PromoForm } from "@/components/promo/promo-form";
 
@@ -27,6 +27,7 @@ export default async function PromoAdminPage() {
         </CardContent>
       </Card>
 
+      <h2 className="text-sm font-semibold text-muted-foreground">Semua Promo</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {(promos ?? []).map((p) => {
           const isActive =
@@ -43,9 +44,14 @@ export default async function PromoAdminPage() {
                 <p className="text-sm text-muted-foreground">{p.body}</p>
                 <form action={deletePromoForm}>
                   <input type="hidden" name="promoId" value={p.id} />
-                  <Button type="submit" variant="destructive" size="sm">
+                  <ActionSubmitButton
+                    variant="destructive"
+                    size="sm"
+                    confirmMessage="Hapus promo ini? Tindakan ini tidak bisa dibatalkan."
+                    successMessage="Promo dihapus"
+                  >
                     Hapus
-                  </Button>
+                  </ActionSubmitButton>
                 </form>
               </CardContent>
             </Card>

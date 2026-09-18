@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { deleteClassForm, removeBookingForm } from "@/lib/actions/schedule";
+import { BackLink } from "@/components/shared/back-link";
+import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddBookingForm } from "@/components/schedule/add-booking-form";
@@ -56,6 +58,7 @@ export default async function ClassDetailPage({
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <BackLink href="/admin/schedule" label="Jadwal Kelas" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
@@ -67,9 +70,14 @@ export default async function ClassDetailPage({
         </div>
         <form action={deleteClassForm}>
           <input type="hidden" name="classId" value={id} />
-          <Button type="submit" variant="destructive" size="sm">
+          <ActionSubmitButton
+            variant="destructive"
+            size="sm"
+            confirmMessage={`Hapus kelas ini beserta ${(bookings ?? []).length} pendaftaran yang ada? Tindakan ini tidak bisa dibatalkan.`}
+            successMessage="Kelas dihapus"
+          >
             Hapus Kelas
-          </Button>
+          </ActionSubmitButton>
         </form>
       </div>
 
@@ -85,7 +93,7 @@ export default async function ClassDetailPage({
               <TableRow>
                 <TableHead>Nama Anak</TableHead>
                 <TableHead>Kehadiran</TableHead>
-                <TableHead />
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +112,7 @@ export default async function ClassDetailPage({
                         <input type="hidden" name="bookingId" value={booking.id} />
                         <input type="hidden" name="classId" value={id} />
                         <Button type="submit" variant="ghost" size="sm">
-                          Batalkan
+                          Batalkan Pendaftaran
                         </Button>
                       </form>
                     </TableCell>

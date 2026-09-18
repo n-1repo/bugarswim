@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
 
 const CYCLE_LABEL: Record<string, string> = {
   monthly: "Bulanan",
@@ -16,6 +17,7 @@ const CYCLE_LABEL: Record<string, string> = {
 
 export function PackageForm() {
   const [state, formAction, pending] = useActionState(createPackage, {});
+  useActionToast(state, "Paket berhasil ditambahkan");
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

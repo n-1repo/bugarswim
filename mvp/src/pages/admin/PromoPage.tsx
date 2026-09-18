@@ -58,7 +58,9 @@ export default function PromoPage() {
   }
 
   function handleDelete(promoId: string) {
+    if (!window.confirm("Hapus promo ini? Tindakan ini tidak bisa dibatalkan.")) return;
     deletePromo(promoId);
+    toast.success("Promo dihapus");
     forceRefresh((n) => n + 1);
   }
 
@@ -112,6 +114,7 @@ export default function PromoPage() {
         </CardContent>
       </Card>
 
+      <h2 className="text-sm font-semibold text-muted-foreground">Semua Promo</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {promos.map((p) => {
           const isActive = new Date(p.activeFrom) <= now && (!p.activeUntil || new Date(p.activeUntil) >= now);

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getLocations } from "@/lib/data/lookups";
+import { BackLink } from "@/components/shared/back-link";
 import { MemberEditForm } from "@/components/members/member-edit-form";
 
 export default async function MemberDetailPage({
@@ -27,6 +28,7 @@ export default async function MemberDetailPage({
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <BackLink href="/admin/members" label="Anggota" />
       <div>
         <h1 className="text-2xl font-semibold">{child.full_name}</h1>
         {parent ? (

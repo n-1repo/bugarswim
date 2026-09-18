@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createPayrollRun, getProfile, listPayrollRuns, listProfilesByRole } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { formatRupiah } from "@/lib/format";
@@ -43,6 +44,7 @@ export default function PayrollPage() {
       setError(result.error);
       return;
     }
+    toast.success("Gaji berhasil dibuat");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }
@@ -50,6 +52,50 @@ export default function PayrollPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Gaji Pelatih</h1>
+
+      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Gaji</h2>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Pelatih</TableHead>
+            <TableHead>Periode</TableHead>
+            <TableHead>Gaji Pokok</TableHead>
+            <TableHead>Bonus</TableHead>
+            <TableHead>THR</TableHead>
+            <TableHead>Total</TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {runs.map((r) => {
+            const coach = getProfile(r.coachId);
+            return (
+              <TableRow key={r.id}>
+                <TableCell>{coach?.fullName ?? "-"}</TableCell>
+                <TableCell>
+                  {r.periodStart} – {r.periodEnd}
+                </TableCell>
+                <TableCell>{formatRupiah(r.baseSalary)}</TableCell>
+                <TableCell>{formatRupiah(r.bonus)}</TableCell>
+                <TableCell>{formatRupiah(r.thr)}</TableCell>
+                <TableCell>{formatRupiah(r.totalAmount)}</TableCell>
+                <TableCell>
+                  <Badge variant={r.status === "posted" ? "success" : "secondary"}>
+                    {r.status === "posted" ? "Terposting" : "Draf"}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          {runs.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                Belum ada data gaji.
+              </TableCell>
+            </TableRow>
+          ) : null}
+        </TableBody>
+      </Table>
 
       <Card className="max-w-2xl">
         <CardHeader>
@@ -105,49 +151,6 @@ export default function PayrollPage() {
           </form>
         </CardContent>
       </Card>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Pelatih</TableHead>
-            <TableHead>Periode</TableHead>
-            <TableHead>Gaji Pokok</TableHead>
-            <TableHead>Bonus</TableHead>
-            <TableHead>THR</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {runs.map((r) => {
-            const coach = getProfile(r.coachId);
-            return (
-              <TableRow key={r.id}>
-                <TableCell>{coach?.fullName ?? "-"}</TableCell>
-                <TableCell>
-                  {r.periodStart} – {r.periodEnd}
-                </TableCell>
-                <TableCell>{formatRupiah(r.baseSalary)}</TableCell>
-                <TableCell>{formatRupiah(r.bonus)}</TableCell>
-                <TableCell>{formatRupiah(r.thr)}</TableCell>
-                <TableCell>{formatRupiah(r.totalAmount)}</TableCell>
-                <TableCell>
-                  <Badge variant={r.status === "posted" ? "success" : "secondary"}>
-                    {r.status === "posted" ? "Terposting" : "Draf"}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-          {runs.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
-                Belum ada data gaji.
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table>
     </div>
   );
 }

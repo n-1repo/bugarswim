@@ -57,9 +57,9 @@ export default function ReportsPage() {
                 <XAxis dataKey="month" fontSize={12} />
                 <YAxis fontSize={12} />
                 <Tooltip />
-                <Line type="monotone" dataKey="cashIn" stroke="#16a34a" name="Masuk" strokeWidth={2} />
-                <Line type="monotone" dataKey="cashOut" stroke="#dc2626" name="Keluar" strokeWidth={2} />
-                <Line type="monotone" dataKey="net" stroke="#0f172a" name="Bersih" strokeWidth={2} />
+                <Line type="monotone" dataKey="cashIn" stroke="var(--color-success)" name="Masuk" strokeWidth={2} />
+                <Line type="monotone" dataKey="cashOut" stroke="var(--color-destructive)" name="Keluar" strokeWidth={2} />
+                <Line type="monotone" dataKey="net" stroke="var(--color-primary)" name="Bersih" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -78,7 +78,7 @@ export default function ReportsPage() {
                 <XAxis dataKey="packageName" fontSize={12} />
                 <YAxis fontSize={12} />
                 <Tooltip />
-                <Bar dataKey="revenue" fill="#0f172a" name="Pendapatan" />
+                <Bar dataKey="revenue" fill="var(--color-primary)" name="Pendapatan" />
               </BarChart>
             </ResponsiveContainer>
           </div>

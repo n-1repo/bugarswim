@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getChild, getProfile, listLocations, updateChild } from "@/lib/db";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,12 +34,17 @@ export default function MemberDetailPage() {
   }
 
   function handleToggleActive() {
+    if (child!.isActive && !window.confirm("Nonaktifkan anggota ini? Akses akun orang tua terkait tidak berubah, tapi anak ini akan ditandai nonaktif.")) {
+      return;
+    }
     updateChild(child!.id, { isActive: !child!.isActive });
+    toast.success(child!.isActive ? "Anggota dinonaktifkan" : "Anggota diaktifkan kembali");
     forceRefresh((n) => n + 1);
   }
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <BackLink to="/admin/members" label="Anggota" />
       <div>
         <h1 className="text-2xl font-semibold">{child.fullName}</h1>
         {parent ? (

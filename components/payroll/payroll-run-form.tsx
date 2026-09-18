@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
 import type { Lookup } from "@/lib/data/lookups";
 
 export function PayrollRunForm({ coaches }: { coaches: Lookup[] }) {
   const [state, formAction, pending] = useActionState(createPayrollRun, {});
+  useActionToast(state, "Gaji berhasil dibuat");
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

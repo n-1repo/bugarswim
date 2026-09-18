@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
 import type { Lookup } from "@/lib/data/lookups";
 
 export function SubscriptionForm({
@@ -17,6 +18,7 @@ export function SubscriptionForm({
   packages: Lookup[];
 }) {
   const [state, formAction, pending] = useActionState(createSubscription, {});
+  useActionToast(state, "Langganan berhasil ditambahkan");
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

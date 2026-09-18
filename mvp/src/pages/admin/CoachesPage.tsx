@@ -29,7 +29,7 @@ export default function CoachesPage() {
             <TableHead>Email</TableHead>
             <TableHead>Telepon</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

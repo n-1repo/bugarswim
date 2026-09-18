@@ -42,7 +42,7 @@ export default async function CoachSchedulePage() {
             <TableHead>Lokasi</TableHead>
             <TableHead>Jenis</TableHead>
             <TableHead>Peserta</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

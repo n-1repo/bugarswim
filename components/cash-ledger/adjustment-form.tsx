@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
 
 export function AdjustmentForm() {
   const [state, formAction, pending] = useActionState(addManualAdjustment, {});
+  useActionToast(state, "Penyesuaian berhasil ditambahkan");
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

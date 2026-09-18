@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { addManualAdjustment, listLedgerWithBalance } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { formatDateTime, formatRupiah } from "@/lib/format";
@@ -48,6 +49,7 @@ export default function CashLedgerPage() {
       setError(result.error);
       return;
     }
+    toast.success("Penyesuaian berhasil ditambahkan");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }
@@ -61,41 +63,7 @@ export default function CashLedgerPage() {
         </Badge>
       </div>
 
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Tambah Penyesuaian Manual</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {error ? (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : null}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="direction">Jenis</Label>
-                <Select id="direction" name="direction" defaultValue="out">
-                  <option value="in">Uang Masuk</option>
-                  <option value="out">Uang Keluar</option>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="amount">Jumlah (Rp)</Label>
-                <Input id="amount" name="amount" type="number" min={1} step={1000} required />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="reason">Alasan</Label>
-              <Textarea id="reason" name="reason" required minLength={3} />
-            </div>
-            <Button type="submit" className="w-fit">
-              Tambah Penyesuaian
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
+      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Transaksi</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -131,6 +99,41 @@ export default function CashLedgerPage() {
           ) : null}
         </TableBody>
       </Table>
+
+      <Card className="max-w-xl">
+        <CardHeader>
+          <CardTitle>Tambah Penyesuaian Manual</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {error ? (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="direction">Jenis</Label>
+                <Select id="direction" name="direction" defaultValue="out">
+                  <option value="in">Uang Masuk</option>
+                  <option value="out">Uang Keluar</option>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="amount">Jumlah (Rp)</Label>
+                <Input id="amount" name="amount" type="number" min={1} step={1000} required />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="reason">Alasan</Label>
+              <Textarea id="reason" name="reason" required minLength={3} />
+            </div>
+            <Button type="submit" className="w-fit">
+              Tambah Penyesuaian
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

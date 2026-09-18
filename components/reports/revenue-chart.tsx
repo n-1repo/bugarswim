@@ -16,7 +16,7 @@ export function RevenueByProgramChart({ data }: { data: RevenueByProgramPoint[] 
           <XAxis dataKey="package_name" fontSize={12} />
           <YAxis fontSize={12} />
           <Tooltip />
-          <Bar dataKey="revenue" fill="#0f172a" name="Pendapatan" />
+          <Bar dataKey="revenue" fill="var(--color-primary)" name="Pendapatan" />
         </BarChart>
       </ResponsiveContainer>
     </div>

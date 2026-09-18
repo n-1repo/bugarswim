@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getProfile, updateProfile } from "@/lib/db";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,12 +26,17 @@ export default function CoachDetailPage() {
   }
 
   function handleToggleActive() {
+    if (coach!.isActive && !window.confirm("Nonaktifkan pelatih ini? Pelatih tidak akan bisa login sampai diaktifkan kembali.")) {
+      return;
+    }
     updateProfile(coach!.id, { isActive: !coach!.isActive });
+    toast.success(coach!.isActive ? "Pelatih dinonaktifkan" : "Pelatih diaktifkan kembali");
     forceRefresh((n) => n + 1);
   }
 
   return (
     <div className="flex max-w-md flex-col gap-6">
+      <BackLink to="/admin/coaches" label="Pelatih" />
       <div>
         <h1 className="text-2xl font-semibold">{coach.fullName}</h1>
         <p className="text-sm text-muted-foreground">{coach.email}</p>

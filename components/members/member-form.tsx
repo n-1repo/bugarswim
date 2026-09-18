@@ -14,10 +14,12 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
 import type { Lookup } from "@/lib/data/lookups";
 
 export function MemberForm({ locations }: { locations: Lookup[] }) {
   const [state, formAction, pending] = useActionState(createChild, {});
+  useActionToast(state, "Anggota berhasil ditambahkan");
   const [parentMode, setParentMode] = useState<"existing" | "new">("existing");
   const [existingParentId, setExistingParentId] = useState<string | null>(null);
 
@@ -63,8 +65,8 @@ export function MemberForm({ locations }: { locations: Lookup[] }) {
         <input type="hidden" name="existingParentId" value={existingParentId} />
       ) : null}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold">Orang Tua</h2>
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4">
+        <h2 className="text-sm font-semibold">1. Orang Tua</h2>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -136,8 +138,8 @@ export function MemberForm({ locations }: { locations: Lookup[] }) {
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold">Data Anak</h2>
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4">
+        <h2 className="text-sm font-semibold">2. Data Anak</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="childFullName">Nama Anak</Label>

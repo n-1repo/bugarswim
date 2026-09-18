@@ -58,17 +58,71 @@ export default function InvoicesPage() {
       toast.error(result.error);
       return;
     }
+    toast.success("Tagihan ditandai lunas");
     forceRefresh((n) => n + 1);
   }
 
   function handleVoid(invoiceId: string) {
+    if (!window.confirm("Batalkan tagihan ini? Tindakan ini tidak bisa dibatalkan.")) return;
     voidInvoice(invoiceId);
+    toast.success("Tagihan dibatalkan");
     forceRefresh((n) => n + 1);
   }
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Tagihan</h1>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Tagihan</h2>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Anak</TableHead>
+            <TableHead>Periode</TableHead>
+            <TableHead>Jatuh Tempo</TableHead>
+            <TableHead>Jumlah</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Aksi</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoices.map((inv) => {
+            const child = getChild(inv.childId);
+            return (
+              <TableRow key={inv.id}>
+                <TableCell>{child?.fullName ?? "-"}</TableCell>
+                <TableCell>
+                  {inv.periodStart} – {inv.periodEnd}
+                </TableCell>
+                <TableCell>{inv.dueDate}</TableCell>
+                <TableCell>{formatRupiah(inv.amount)}</TableCell>
+                <TableCell>
+                  <Badge variant={STATUS_VARIANT[inv.status]}>{STATUS_LABEL[inv.status]}</Badge>
+                </TableCell>
+                <TableCell>
+                  {inv.status === "outstanding" ? (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => handleMarkPaid(inv.id)}>
+                        Tandai Lunas
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleVoid(inv.id)}>
+                        Batalkan Tagihan
+                      </Button>
+                    </div>
+                  ) : null}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          {invoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground">
+                Belum ada tagihan.
+              </TableCell>
+            </TableRow>
+          ) : null}
+        </TableBody>
+      </Table>
+
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Buat Tagihan Periode Berjalan</CardTitle>
@@ -95,55 +149,6 @@ export default function InvoicesPage() {
           </form>
         </CardContent>
       </Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Anak</TableHead>
-            <TableHead>Periode</TableHead>
-            <TableHead>Jatuh Tempo</TableHead>
-            <TableHead>Jumlah</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.map((inv) => {
-            const child = getChild(inv.childId);
-            return (
-              <TableRow key={inv.id}>
-                <TableCell>{child?.fullName ?? "-"}</TableCell>
-                <TableCell>
-                  {inv.periodStart} – {inv.periodEnd}
-                </TableCell>
-                <TableCell>{inv.dueDate}</TableCell>
-                <TableCell>{formatRupiah(inv.amount)}</TableCell>
-                <TableCell>
-                  <Badge variant={STATUS_VARIANT[inv.status]}>{STATUS_LABEL[inv.status]}</Badge>
-                </TableCell>
-                <TableCell>
-                  {inv.status === "outstanding" ? (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleMarkPaid(inv.id)}>
-                        Tandai Lunas
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleVoid(inv.id)}>
-                        Batalkan
-                      </Button>
-                    </div>
-                  ) : null}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-          {invoices.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Belum ada tagihan.
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table>
     </div>
   );
 }

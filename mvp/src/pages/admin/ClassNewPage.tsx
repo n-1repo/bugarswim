@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { createClass, listClassTypes, listLocations, listProfilesByRole } from "@/lib/db";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,7 @@ export default function ClassNewPage() {
 
   return (
     <div className="flex max-w-lg flex-col gap-4">
+      <BackLink to="/admin/schedule" label="Jadwal Kelas" />
       <h1 className="text-2xl font-semibold">Tambah Kelas</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error ? (

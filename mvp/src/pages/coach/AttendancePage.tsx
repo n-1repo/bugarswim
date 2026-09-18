@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { getChild, listBookingsByClass, listClasses, listClassTypes, listLocations, markAttendance } from "@/lib/db";
 import { formatDateTime, formatTime } from "@/lib/format";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -30,6 +31,7 @@ export default function AttendancePage() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
+      <BackLink to="/coach" label="Jadwal Saya" />
       <div>
         <h1 className="text-2xl font-semibold">{classType?.name ?? "Kelas"}</h1>
         <p className="text-sm text-muted-foreground">
@@ -41,7 +43,7 @@ export default function AttendancePage() {
           <TableRow>
             <TableHead>Nama Anak</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -26,15 +26,7 @@ export default async function PayrollPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Gaji Pelatih</h1>
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Buat Gaji Baru</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PayrollRunForm coaches={coaches} />
-        </CardContent>
-      </Card>
-
+      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Gaji</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -87,6 +79,15 @@ export default async function PayrollPage() {
           ) : null}
         </TableBody>
       </Table>
+
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>Buat Gaji Baru</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PayrollRunForm coaches={coaches} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

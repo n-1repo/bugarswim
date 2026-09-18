@@ -36,15 +36,7 @@ export default async function CashLedgerPage() {
         </Badge>
       </div>
 
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Tambah Penyesuaian Manual</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AdjustmentForm />
-        </CardContent>
-      </Card>
-
+      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Transaksi</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -80,6 +72,15 @@ export default async function CashLedgerPage() {
           ) : null}
         </TableBody>
       </Table>
+
+      <Card className="max-w-xl">
+        <CardHeader>
+          <CardTitle>Tambah Penyesuaian Manual</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AdjustmentForm />
+        </CardContent>
+      </Card>
     </div>
   );
 }

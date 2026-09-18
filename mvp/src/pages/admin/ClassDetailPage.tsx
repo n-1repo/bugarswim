@@ -14,6 +14,7 @@ import {
   removeBooking,
 } from "@/lib/db";
 import { formatDateTime, formatTime } from "@/lib/format";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
@@ -45,6 +46,9 @@ export default function ClassDetailPage() {
   const availableChildren = listChildren().filter((c) => c.isActive && !bookedChildIds.has(c.id));
 
   function handleDelete() {
+    if (!window.confirm(`Hapus kelas ini beserta ${bookings.length} pendaftaran yang ada? Tindakan ini tidak bisa dibatalkan.`)) {
+      return;
+    }
     deleteClass(id!);
     toast.success("Kelas dihapus");
     navigate("/admin/schedule");
@@ -73,6 +77,7 @@ export default function ClassDetailPage() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <BackLink to="/admin/schedule" label="Jadwal Kelas" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{classType?.name ?? "Kelas"}</h1>
@@ -103,7 +108,7 @@ export default function ClassDetailPage() {
               <TableRow>
                 <TableHead>Nama Anak</TableHead>
                 <TableHead>Kehadiran</TableHead>
-                <TableHead />
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,7 +120,7 @@ export default function ClassDetailPage() {
                     <TableCell>{booking.isAttended ? "Hadir" : "Belum"}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm" onClick={() => handleRemoveBooking(booking.id)}>
-                        Batalkan
+                        Batalkan Pendaftaran
                       </Button>
                     </TableCell>
                   </TableRow>

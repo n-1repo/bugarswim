@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createPackage, listPackages } from "@/lib/db";
 import { formatRupiah } from "@/lib/format";
 import type { BillingCycle } from "@/types/db";
@@ -35,6 +36,7 @@ export default function PackagesPage() {
       billingCycle: String(formData.get("billingCycle")) as BillingCycle,
       description: String(formData.get("description") || "") || undefined,
     });
+    toast.success("Paket berhasil ditambahkan");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }
@@ -42,6 +44,7 @@ export default function PackagesPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Paket Keanggotaan</h1>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Paket</h2>
       <Table>
         <TableHeader>
           <TableRow>

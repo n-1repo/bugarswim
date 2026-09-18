@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   cancelSubscription,
   createSubscription,
@@ -51,18 +52,22 @@ export default function SubscriptionsPage() {
       setError(result.error);
       return;
     }
+    toast.success("Langganan berhasil ditambahkan");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }
 
   function handleCancel(subscriptionId: string) {
+    if (!window.confirm("Batalkan langganan ini? Tindakan ini tidak bisa dibatalkan.")) return;
     cancelSubscription(subscriptionId);
+    toast.success("Langganan dibatalkan");
     forceRefresh((n) => n + 1);
   }
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Langganan</h1>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Langganan</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -70,7 +75,7 @@ export default function SubscriptionsPage() {
             <TableHead>Paket</TableHead>
             <TableHead>Mulai</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -90,7 +95,7 @@ export default function SubscriptionsPage() {
                 <TableCell>
                   {s.status === "active" ? (
                     <Button variant="ghost" size="sm" onClick={() => handleCancel(s.id)}>
-                      Batalkan
+                      Batalkan Langganan
                     </Button>
                   ) : null}
                 </TableCell>

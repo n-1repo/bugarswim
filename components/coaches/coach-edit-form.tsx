@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useActionToast } from "@/components/shared/use-action-toast";
+import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 
 interface CoachDetail {
   id: string;
@@ -17,6 +19,7 @@ interface CoachDetail {
 export function CoachEditForm({ coach }: { coach: CoachDetail }) {
   const updateCoachWithId = updateCoach.bind(null, coach.id);
   const [state, formAction, pending] = useActionState(updateCoachWithId, {});
+  useActionToast(state, "Perubahan disimpan");
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,9 +45,17 @@ export function CoachEditForm({ coach }: { coach: CoachDetail }) {
       <form action={toggleCoachActiveForm}>
         <input type="hidden" name="coachId" value={coach.id} />
         <input type="hidden" name="isActive" value={(!coach.is_active).toString()} />
-        <Button type="submit" variant={coach.is_active ? "destructive" : "secondary"}>
+        <ActionSubmitButton
+          variant={coach.is_active ? "destructive" : "secondary"}
+          confirmMessage={
+            coach.is_active
+              ? "Nonaktifkan pelatih ini? Pelatih tidak akan bisa login sampai diaktifkan kembali."
+              : undefined
+          }
+          successMessage={coach.is_active ? "Pelatih dinonaktifkan" : "Pelatih diaktifkan kembali"}
+        >
           {coach.is_active ? "Nonaktifkan Pelatih" : "Aktifkan Kembali"}
-        </Button>
+        </ActionSubmitButton>
       </form>
     </div>
   );

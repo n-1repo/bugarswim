@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { createAccount } from "@/lib/db";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ export default function CoachNewPage() {
 
   return (
     <div className="flex max-w-md flex-col gap-4">
+      <BackLink to="/admin/coaches" label="Pelatih" />
       <h1 className="text-2xl font-semibold">Tambah Pelatih</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error ? (

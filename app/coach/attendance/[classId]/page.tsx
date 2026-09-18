@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { markAttendanceForm } from "@/lib/actions/attendance";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -42,6 +43,7 @@ export default async function AttendancePage({
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
+      <BackLink href="/coach" label="Jadwal Saya" />
       <div>
         <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
         <p className="text-sm text-muted-foreground">
@@ -54,7 +56,7 @@ export default async function AttendancePage({
           <TableRow>
             <TableHead>Nama Anak</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

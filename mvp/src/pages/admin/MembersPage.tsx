@@ -32,7 +32,7 @@ export default function MembersPage() {
             <TableHead>Orang Tua</TableHead>
             <TableHead>Lokasi</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

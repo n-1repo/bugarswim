@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createClassType, createLocation, listClassTypes, listLocations } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export default function SettingsPage() {
     const name = String(formData.get("name") ?? "").trim();
     if (!name) return;
     createLocation(name, String(formData.get("address") ?? "") || undefined);
+    toast.success("Lokasi berhasil ditambahkan");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }
@@ -27,6 +29,7 @@ export default function SettingsPage() {
     const name = String(formData.get("name") ?? "").trim();
     if (!name) return;
     createClassType(name, String(formData.get("description") ?? "") || undefined);
+    toast.success("Jenis kelas berhasil ditambahkan");
     event.currentTarget.reset();
     forceRefresh((n) => n + 1);
   }

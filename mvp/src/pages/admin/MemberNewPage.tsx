@@ -8,6 +8,7 @@ import {
   listProfilesByRole,
   searchSimilarChildren,
 } from "@/lib/db";
+import { BackLink } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,6 +102,7 @@ export default function MemberNewPage() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
+      <BackLink to="/admin/members" label="Anggota" />
       <h1 className="text-2xl font-semibold">Daftarkan Anggota Baru</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {error ? (
@@ -109,8 +111,8 @@ export default function MemberNewPage() {
           </Alert>
         ) : null}
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold">Orang Tua</h2>
+        <section className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4">
+          <h2 className="text-sm font-semibold">1. Orang Tua</h2>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -195,8 +197,8 @@ export default function MemberNewPage() {
           )}
         </section>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold">Data Anak</h2>
+        <section className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4">
+          <h2 className="text-sm font-semibold">2. Data Anak</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="childFullName">Nama Anak</Label>

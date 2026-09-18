@@ -1,8 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { markInvoicePaidForm, voidInvoiceForm } from "@/lib/actions/billing";
+import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -35,14 +35,7 @@ export default async function InvoicesPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Tagihan</h1>
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Buat Tagihan Periode Berjalan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GenerateInvoicesForm />
-        </CardContent>
-      </Card>
+      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Tagihan</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -51,7 +44,7 @@ export default async function InvoicesPage() {
             <TableHead>Jatuh Tempo</TableHead>
             <TableHead>Jumlah</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead />
+            <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -83,15 +76,20 @@ export default async function InvoicesPage() {
                     <div className="flex gap-2">
                       <form action={markInvoicePaidForm}>
                         <input type="hidden" name="invoiceId" value={row.id} />
-                        <Button type="submit" size="sm">
+                        <ActionSubmitButton size="sm" successMessage="Tagihan ditandai lunas">
                           Tandai Lunas
-                        </Button>
+                        </ActionSubmitButton>
                       </form>
                       <form action={voidInvoiceForm}>
                         <input type="hidden" name="invoiceId" value={row.id} />
-                        <Button type="submit" size="sm" variant="ghost">
-                          Batalkan
-                        </Button>
+                        <ActionSubmitButton
+                          size="sm"
+                          variant="ghost"
+                          confirmMessage="Batalkan tagihan ini? Tindakan ini tidak bisa dibatalkan."
+                          successMessage="Tagihan dibatalkan"
+                        >
+                          Batalkan Tagihan
+                        </ActionSubmitButton>
                       </form>
                     </div>
                   ) : null}
@@ -108,6 +106,15 @@ export default async function InvoicesPage() {
           ) : null}
         </TableBody>
       </Table>
+
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>Buat Tagihan Periode Berjalan</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <GenerateInvoicesForm />
+        </CardContent>
+      </Card>
     </div>
   );
 }

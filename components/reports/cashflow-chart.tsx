@@ -26,9 +26,9 @@ export function CashflowChart({ data }: { data: CashFlowPoint[] }) {
           <XAxis dataKey="month" fontSize={12} />
           <YAxis fontSize={12} />
           <Tooltip />
-          <Line type="monotone" dataKey="cash_in" stroke="#16a34a" name="Masuk" strokeWidth={2} />
-          <Line type="monotone" dataKey="cash_out" stroke="#dc2626" name="Keluar" strokeWidth={2} />
-          <Line type="monotone" dataKey="net" stroke="#0f172a" name="Bersih" strokeWidth={2} />
+          <Line type="monotone" dataKey="cash_in" stroke="var(--color-success)" name="Masuk" strokeWidth={2} />
+          <Line type="monotone" dataKey="cash_out" stroke="var(--color-destructive)" name="Keluar" strokeWidth={2} />
+          <Line type="monotone" dataKey="net" stroke="var(--color-primary)" name="Bersih" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>
