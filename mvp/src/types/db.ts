@@ -57,6 +57,7 @@ export interface Booking {
   classId: string;
   isAttended: boolean;
   attendedAt?: string;
+  notes?: string;
   createdAt: string;
 }
 

@@ -1,16 +1,17 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { markAttendanceForm } from "@/lib/actions/attendance";
 import { BackLink } from "@/components/shared/back-link";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { AttendanceRoster } from "@/components/attendance/attendance-roster";
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium">{value}</span>
+    </div>
+  );
+}
 
 export default async function AttendancePage({
   params,
@@ -28,7 +29,7 @@ export default async function AttendancePage({
       .maybeSingle(),
     supabase
       .from("bookings")
-      .select("id, is_attended, children(full_name)")
+      .select("id, is_attended, notes, children(full_name)")
       .eq("class_id", classId),
   ]);
 
@@ -41,57 +42,39 @@ export default async function AttendancePage({
     class_types: { name: string } | null;
   };
 
+  const roster = (bookings ?? []).map((b) => {
+    const booking = b as unknown as {
+      id: string;
+      is_attended: boolean;
+      notes: string | null;
+      children: { full_name: string };
+    };
+    return {
+      id: booking.id,
+      isAttended: booking.is_attended,
+      notes: booking.notes,
+      childName: booking.children.full_name,
+    };
+  });
+
   return (
-    <div className="flex max-w-2xl flex-col gap-4">
+    <div className="flex max-w-3xl flex-col gap-4">
       <BackLink href="/coach" label="Jadwal Saya" />
-      <div>
-        <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
-        <p className="text-sm text-muted-foreground">
-          {new Date(info.start_time).toLocaleString("id-ID")} —{" "}
-          {new Date(info.end_time).toLocaleTimeString("id-ID")} · {info.locations?.name}
-        </p>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nama Anak</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {(bookings ?? []).map((b) => {
-            const booking = b as unknown as {
-              id: string;
-              is_attended: boolean;
-              children: { full_name: string };
-            };
-            return (
-              <TableRow key={booking.id}>
-                <TableCell>{booking.children.full_name}</TableCell>
-                <TableCell>{booking.is_attended ? "Hadir" : "Belum Hadir"}</TableCell>
-                <TableCell>
-                  <form action={markAttendanceForm}>
-                    <input type="hidden" name="bookingId" value={booking.id} />
-                    <input type="hidden" name="classId" value={classId} />
-                    <input type="hidden" name="isAttended" value={(!booking.is_attended).toString()} />
-                    <Button type="submit" size="sm" variant={booking.is_attended ? "outline" : "default"}>
-                      {booking.is_attended ? "Tandai Belum Hadir" : "Tandai Hadir"}
-                    </Button>
-                  </form>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-          {(bookings ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center text-muted-foreground">
-                Belum ada peserta terdaftar di kelas ini.
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table>
+      <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
+
+      <Card>
+        <CardContent className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4">
+          <InfoItem label="Tanggal" value={new Date(info.start_time).toLocaleDateString("id-ID")} />
+          <InfoItem
+            label="Waktu"
+            value={`${new Date(info.start_time).toLocaleTimeString("id-ID")} — ${new Date(info.end_time).toLocaleTimeString("id-ID")}`}
+          />
+          <InfoItem label="Lokasi" value={info.locations?.name ?? "-"} />
+          <InfoItem label="Jenis Kelas" value={info.class_types?.name ?? "-"} />
+        </CardContent>
+      </Card>
+
+      <AttendanceRoster classId={classId} bookings={roster} />
     </div>
   );
 }

@@ -289,6 +289,15 @@ export function markAttendance(bookingId: string, isAttended: boolean): void {
   });
 }
 
+export function updateBookingNotes(bookingId: string, notes: string): void {
+  withDb((db) => {
+    const booking = db.bookings.find((b) => b.id === bookingId);
+    if (booking) {
+      booking.notes = notes.trim() || undefined;
+    }
+  });
+}
+
 export function listPackages(): MembershipPackage[] {
   return loadDb().membershipPackages;
 }

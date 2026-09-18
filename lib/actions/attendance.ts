@@ -21,3 +21,18 @@ export async function markAttendanceForm(formData: FormData): Promise<void> {
 
   revalidatePath(`/coach/attendance/${classId}`);
 }
+
+export async function updateBookingNotesForm(formData: FormData): Promise<void> {
+  await requireActionRole("coach");
+  const bookingId = String(formData.get("bookingId"));
+  const classId = String(formData.get("classId"));
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  const supabase = await createServerSupabaseClient();
+  await supabase
+    .from("bookings")
+    .update({ notes: notes || null })
+    .eq("id", bookingId);
+
+  revalidatePath(`/coach/attendance/${classId}`);
+}
