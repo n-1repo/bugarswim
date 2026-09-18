@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5faf9;
-  --foreground: #0f2a27;
+  --background: #f3f8fc;
+  --foreground: #0b2a3d;
   --card: #ffffff;
-  --card-foreground: #0f2a27;
-  --primary: #0f766e;
+  --card-foreground: #0b2a3d;
+  --primary: #0369a1;
   --primary-foreground: #ffffff;
-  --secondary: #e3f3f0;
-  --secondary-foreground: #0f766e;
-  --muted: #eff4f3;
-  --muted-foreground: #55716c;
-  --accent: #e3f3f0;
-  --accent-foreground: #0f766e;
+  --secondary: #e0f0f9;
+  --secondary-foreground: #0369a1;
+  --muted: #eef3f6;
+  --muted-foreground: #52717f;
+  --accent: #e0f0f9;
+  --accent-foreground: #0369a1;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --success: #15803d;
   --success-foreground: #ffffff;
   --warning: #b45309;
   --warning-foreground: #fffbeb;
-  --border: #d9e8e5;
-  --input: #d9e8e5;
-  --ring: #0f766e;
+  --border: #d3e6f0;
+  --input: #d3e6f0;
+  --ring: #0369a1;
   --radius: 0.625rem;
 
-  --sidebar: #0b3b36;
-  --sidebar-foreground: #e7f5f2;
-  --sidebar-muted-foreground: #a9d3ca;
+  --sidebar: #0a2f4d;
+  --sidebar-foreground: #e5f1fa;
+  --sidebar-muted-foreground: #9cc6e0;
   --sidebar-accent: rgba(255, 255, 255, 0.12);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.1);
