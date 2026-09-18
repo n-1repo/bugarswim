@@ -7,6 +7,19 @@ export interface RevenueByProgramPoint {
   revenue: number;
 }
 
+const compactRupiah = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+const fullRupiah = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
+
 export function RevenueByProgramChart({ data }: { data: RevenueByProgramPoint[] }) {
   return (
     <div className="h-72 w-full">
@@ -14,8 +27,8 @@ export function RevenueByProgramChart({ data }: { data: RevenueByProgramPoint[] 
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="package_name" fontSize={12} />
-          <YAxis fontSize={12} />
-          <Tooltip />
+          <YAxis fontSize={12} tickFormatter={(value: number) => compactRupiah.format(value)} width={80} />
+          <Tooltip formatter={(value: number) => fullRupiah.format(value)} />
           <Bar dataKey="revenue" fill="var(--color-primary)" name="Pendapatan" />
         </BarChart>
       </ResponsiveContainer>
