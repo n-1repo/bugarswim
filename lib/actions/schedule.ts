@@ -112,7 +112,7 @@ export async function addBooking(
     return { ok: false, error: "Gagal menambahkan anak ke kelas" };
   }
 
-  revalidatePath(`/admin/schedule/${classId}`);
+  revalidatePath("/admin/schedule");
   return { ok: true };
 }
 
@@ -122,7 +122,6 @@ export async function removeBookingForm(
 ): Promise<ActionState> {
   await requireActionRole("admin");
   const bookingId = String(formData.get("bookingId"));
-  const classId = String(formData.get("classId"));
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("bookings").delete().eq("id", bookingId);
 
@@ -130,6 +129,6 @@ export async function removeBookingForm(
     return { ok: false, error: "Gagal membatalkan pendaftaran" };
   }
 
-  revalidatePath(`/admin/schedule/${classId}`);
+  revalidatePath("/admin/schedule");
   return { ok: true };
 }

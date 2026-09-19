@@ -6,7 +6,6 @@ import { ListControls } from "@/components/shared/list-controls";
 import { ActionForm } from "@/components/shared/action-form";
 import { EmptyRow } from "@/components/shared/empty-row";
 import { QueryErrorAlert } from "@/components/shared/query-error-alert";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -16,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SubscriptionForm } from "@/components/billing/subscription-form";
+import { AddSubscriptionDialog } from "@/components/billing/add-subscription-dialog";
 
 const STATUS_LABEL: Record<string, string> = {
   active: "Aktif",
@@ -61,7 +60,10 @@ export default async function SubscriptionsPage({
 
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-xl font-semibold">Langganan</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Langganan</h1>
+        <AddSubscriptionDialog childOptions={childOptions} packages={activePackages} />
+      </div>
       <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Daftar Langganan</h2>
       <ListControls
@@ -146,14 +148,6 @@ export default async function SubscriptionsPage({
           ) : null}
         </TableBody>
       </Table>
-      <Card className="max-w-md">
-        <CardHeader>
-          <CardTitle>Tambah Langganan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SubscriptionForm childOptions={childOptions} packages={activePackages} />
-        </CardContent>
-      </Card>
     </div>
   );
 }

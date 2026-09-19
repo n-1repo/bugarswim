@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddCoachDialog } from "@/components/coaches/add-coach-dialog";
+import { ManageCoachDialog } from "@/components/coaches/manage-coach-dialog";
 import { EmptyRow } from "@/components/shared/empty-row";
 import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
@@ -78,12 +78,7 @@ export default async function CoachesPage({
                 </Badge>
               </TableCell>
               <TableCell>
-                <Link
-                  href={`/admin/coaches/${coach.id}`}
-                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
-                >
-                  Kelola
-                </Link>
+                <ManageCoachDialog coach={coach} />
               </TableCell>
             </TableRow>
           ))}

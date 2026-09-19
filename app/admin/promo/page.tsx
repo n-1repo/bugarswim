@@ -6,7 +6,7 @@ import { ActionForm } from "@/components/shared/action-form";
 import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PromoForm } from "@/components/promo/promo-form";
+import { AddPromoDialog } from "@/components/promo/add-promo-dialog";
 
 export default async function PromoAdminPage({
   searchParams,
@@ -34,17 +34,11 @@ export default async function PromoAdminPage({
 
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-xl font-semibold">Promo</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Promo</h1>
+        <AddPromoDialog />
+      </div>
       <QueryErrorAlert error={error?.message} />
-
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Tambah Promo Baru</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PromoForm />
-        </CardContent>
-      </Card>
 
       <h2 className="text-xs font-semibold text-muted-foreground">Semua Promo</h2>
       <ListControls

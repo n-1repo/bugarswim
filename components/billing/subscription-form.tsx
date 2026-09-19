@@ -13,12 +13,14 @@ import type { Lookup } from "@/lib/data/lookups";
 export function SubscriptionForm({
   childOptions,
   packages,
+  onSuccess,
 }: {
   childOptions: Lookup[];
   packages: Lookup[];
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(createSubscription, {});
-  useActionToast(state, "Langganan berhasil ditambahkan");
+  useActionToast(state, "Langganan berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

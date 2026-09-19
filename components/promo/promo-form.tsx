@@ -9,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 
-export function PromoForm() {
+export function PromoForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, formAction, pending] = useActionState(createPromo, {});
-  useActionToast(state, "Promo berhasil ditambahkan");
+  useActionToast(state, "Promo berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

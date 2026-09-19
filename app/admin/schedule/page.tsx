@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getActiveCoaches, getClassTypes, getLocations } from "@/lib/data/lookups";
+import { getActiveChildren, getActiveCoaches, getClassTypes, getLocations } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddClassDialog } from "@/components/schedule/add-class-dialog";
+import { ManageClassDialog } from "@/components/schedule/manage-class-dialog";
 import { EmptyRow } from "@/components/shared/empty-row";
 import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { formatDateTime, formatTime } from "@/lib/format";
@@ -24,7 +24,7 @@ interface ClassRow {
   profiles: { full_name: string } | null;
   locations: { name: string } | null;
   class_types: { name: string } | null;
-  bookings: { count: number }[];
+  bookings: { id: string; is_attended: boolean; children: { id: string; full_name: string } }[];
 }
 
 export default async function SchedulePage({
@@ -45,18 +45,19 @@ export default async function SchedulePage({
   let query = supabase
     .from("classes")
     .select(
-      "id, start_time, end_time, capacity, profiles(full_name), locations(name), class_types(name), bookings(count)",
+      "id, start_time, end_time, capacity, profiles(full_name), locations(name), class_types(name), bookings(id, is_attended, children(id, full_name))",
       { count: "exact" }
     );
   if (sp.coach) query = query.eq("instructor_id", sp.coach);
   if (sp.location) query = query.eq("location_id", sp.location);
   if (sp.classType) query = query.eq("class_type_id", sp.classType);
 
-  const [{ data, count, error }, coaches, locations, classTypes] = await Promise.all([
+  const [{ data, count, error }, coaches, locations, classTypes, allChildren] = await Promise.all([
     query.order("start_time").range(from, to),
     getActiveCoaches(),
     getLocations(),
     getClassTypes(),
+    getActiveChildren(),
   ]);
 
   const classes = (data ?? []) as unknown as ClassRow[];
@@ -111,15 +112,15 @@ export default async function SchedulePage({
               <TableCell>{cls.locations?.name ?? "-"}</TableCell>
               <TableCell>{cls.class_types?.name ?? "-"}</TableCell>
               <TableCell>
-                {cls.bookings?.[0]?.count ?? 0} / {cls.capacity}
+                {cls.bookings?.length ?? 0} / {cls.capacity}
               </TableCell>
               <TableCell>
-                <Link
-                  href={`/admin/schedule/${cls.id}`}
-                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
-                >
-                  Kelola
-                </Link>
+                <ManageClassDialog
+                  classId={cls.id}
+                  info={cls}
+                  bookings={cls.bookings ?? []}
+                  allChildren={allChildren}
+                />
               </TableCell>
             </TableRow>
           ))}

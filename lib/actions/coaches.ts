@@ -92,7 +92,6 @@ export async function updateCoach(
   }
 
   revalidatePath("/admin/coaches");
-  revalidatePath(`/admin/coaches/${coachId}`);
   return { ok: true };
 }
 
@@ -112,6 +111,5 @@ export async function toggleCoachActiveForm(
   }
 
   revalidatePath("/admin/coaches");
-  revalidatePath(`/admin/coaches/${coachId}`);
   return { ok: true };
 }

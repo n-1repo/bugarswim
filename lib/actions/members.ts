@@ -182,7 +182,6 @@ export async function updateChild(
   }
 
   revalidatePath("/admin/members");
-  revalidatePath(`/admin/members/${childId}`);
   return { ok: true };
 }
 
@@ -202,6 +201,5 @@ export async function toggleChildActiveForm(
   }
 
   revalidatePath("/admin/members");
-  revalidatePath(`/admin/members/${childId}`);
   return { ok: true };
 }

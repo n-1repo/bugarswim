@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getLocations } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddMemberDialog } from "@/components/members/add-member-dialog";
+import { ManageMemberDialog } from "@/components/members/manage-member-dialog";
 import { EmptyRow } from "@/components/shared/empty-row";
 import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,11 @@ interface ChildRow {
   id: string;
   full_name: string;
   date_of_birth: string;
+  notes: string | null;
+  address: string | null;
+  preferred_location_id: string | null;
   is_active: boolean;
-  profiles: { full_name: string } | null;
+  profiles: { full_name: string; email: string; phone: string | null } | null;
   locations: { name: string } | null;
 }
 
@@ -47,7 +50,10 @@ export default async function MembersPage({
 
   let query = supabase
     .from("children")
-    .select("id, full_name, date_of_birth, is_active, profiles(full_name), locations(name)", { count: "exact" });
+    .select(
+      "id, full_name, date_of_birth, notes, address, preferred_location_id, is_active, profiles(full_name, email, phone), locations(name)",
+      { count: "exact" }
+    );
   if (sp.q) query = query.ilike("full_name", `%${sp.q}%`);
   if (sp.status) query = query.eq("is_active", sp.status === "active");
   if (sp.location) query = query.eq("preferred_location_id", sp.location);
@@ -111,12 +117,7 @@ export default async function MembersPage({
                 </Badge>
               </TableCell>
               <TableCell>
-                <Link
-                  href={`/admin/members/${child.id}`}
-                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
-                >
-                  Kelola
-                </Link>
+                <ManageMemberDialog child={child} parent={child.profiles} locations={locations} />
               </TableCell>
             </TableRow>
           ))}
