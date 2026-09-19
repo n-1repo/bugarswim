@@ -20,7 +20,7 @@ export function AppShell({
 }) {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 sm:px-6">
+      <header className="flex items-center justify-between border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2">
           <span className="font-heading text-base font-semibold tracking-tight text-primary">{CLUB_NAME}</span>
           <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
@@ -40,7 +40,7 @@ export function AppShell({
             </NavLink>
           ))}
         </nav>
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <main className="min-w-0 flex-1 overflow-auto p-3 sm:p-4">{children}</main>
       </div>
     </div>
   );

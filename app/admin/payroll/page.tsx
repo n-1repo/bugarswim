@@ -40,10 +40,10 @@ export default async function PayrollPage({
   ]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Gaji Pelatih</h1>
+    <div className="flex flex-col gap-3">
+      <h1 className="text-xl font-semibold">Gaji Pelatih</h1>
 
-      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Gaji</h2>
+      <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Gaji</h2>
       <ListControls
         searchPlaceholder="Cari nama pelatih..."
         filters={[

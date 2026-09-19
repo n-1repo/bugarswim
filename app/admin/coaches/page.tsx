@@ -32,9 +32,9 @@ export default async function CoachesPage({
   const { data: coaches, count } = await query.order("full_name").range(from, to);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Pelatih</h1>
+        <h1 className="text-xl font-semibold">Pelatih</h1>
         <Link href="/admin/coaches/new" className={buttonVariants({})}>
           Tambah Pelatih
         </Link>

@@ -32,8 +32,8 @@ export default async function PromoAdminPage({
   const now = new Date();
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Promo</h1>
+    <div className="flex flex-col gap-3">
+      <h1 className="text-xl font-semibold">Promo</h1>
 
       <Card className="max-w-xl">
         <CardHeader>
@@ -44,7 +44,7 @@ export default async function PromoAdminPage({
         </CardContent>
       </Card>
 
-      <h2 className="text-sm font-semibold text-muted-foreground">Semua Promo</h2>
+      <h2 className="text-xs font-semibold text-muted-foreground">Semua Promo</h2>
       <ListControls
         searchPlaceholder="Cari judul atau isi..."
         filters={[
@@ -61,7 +61,7 @@ export default async function PromoAdminPage({
         page={page}
         pageSize={pageSize}
       />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {(promos ?? []).map((p) => {
           const isActive =
             new Date(p.active_from) <= now && (!p.active_until || new Date(p.active_until) >= now);

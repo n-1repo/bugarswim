@@ -58,9 +58,9 @@ export default async function MembersPage({
   const children = (data ?? []) as unknown as ChildRow[];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Anggota</h1>
+        <h1 className="text-xl font-semibold">Anggota</h1>
         <Link href="/admin/members/new" className={buttonVariants({})}>
           Tambah Anggota
         </Link>

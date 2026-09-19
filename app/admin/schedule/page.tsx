@@ -59,9 +59,9 @@ export default async function SchedulePage({
   const classes = (data ?? []) as unknown as ClassRow[];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Jadwal Kelas</h1>
+        <h1 className="text-xl font-semibold">Jadwal Kelas</h1>
         <Link href="/admin/schedule/new" className={buttonVariants({})}>
           Tambah Kelas
         </Link>

@@ -46,15 +46,15 @@ export default async function CashLedgerPage({
   const { data: entries, count } = await query.order("entry_date", { ascending: false }).range(from, to);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Buku Kas</h1>
-        <Badge variant={Number(latestBalance) >= 0 ? "success" : "destructive"} className="text-sm">
+        <h1 className="text-xl font-semibold">Buku Kas</h1>
+        <Badge variant={Number(latestBalance) >= 0 ? "success" : "destructive"} className="text-xs">
           Saldo: Rp {Number(latestBalance).toLocaleString("id-ID")}
         </Badge>
       </div>
 
-      <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Transaksi</h2>
+      <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Transaksi</h2>
       <ListControls
         searchPlaceholder="Cari keterangan..."
         filters={[

@@ -53,9 +53,9 @@ export default async function SubscriptionsPage({
   const usageBySubscription = new Map((usage ?? []).map((u) => [u.subscription_id, u]));
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Langganan</h1>
-      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Langganan</h2>
+    <div className="flex flex-col gap-3">
+      <h1 className="text-xl font-semibold">Langganan</h1>
+      <h2 className="text-xs font-semibold text-muted-foreground">Daftar Langganan</h2>
       <ListControls
         searchPlaceholder="Cari nama anak..."
         filters={[

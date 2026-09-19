@@ -30,9 +30,9 @@ export default async function PackagesPage({
   const { data: packages, count } = await query.order("name").range(from, to);
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Paket Keanggotaan</h1>
-      <h2 className="text-sm font-semibold text-muted-foreground">Daftar Paket</h2>
+    <div className="flex flex-col gap-3">
+      <h1 className="text-xl font-semibold">Paket Keanggotaan</h1>
+      <h2 className="text-xs font-semibold text-muted-foreground">Daftar Paket</h2>
       <ListControls
         searchPlaceholder="Cari nama paket..."
         filters={[
