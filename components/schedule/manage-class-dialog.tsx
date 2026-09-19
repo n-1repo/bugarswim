@@ -50,7 +50,7 @@ export function ManageClassDialog({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+        className="text-sm font-medium text-primary underline-offset-2 transition-colors hover:underline hover:opacity-80 active:opacity-60"
       >
         Kelola
       </button>

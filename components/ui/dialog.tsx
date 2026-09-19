@@ -86,7 +86,7 @@ export function Dialog({
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
         >
           ✕
         </button>
