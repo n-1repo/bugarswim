@@ -39,13 +39,19 @@ export function AppShell({
         </div>
       </header>
       <div className="flex flex-1 flex-col sm:flex-row">
-        <nav className="flex shrink-0 gap-1 overflow-x-auto bg-sidebar p-2 sm:w-56 sm:flex-col sm:gap-1 sm:border-r sm:border-sidebar-border sm:p-3">
-          {navItems.map((item) => (
-            <NavLink key={item.href} href={item.href} exact={item.href.split("/").length <= 2}>
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="relative sm:contents">
+          <nav className="flex shrink-0 gap-1 overflow-x-auto bg-sidebar p-2 sm:w-56 sm:flex-col sm:gap-1 sm:border-r sm:border-sidebar-border sm:p-3">
+            {navItems.map((item) => (
+              <NavLink key={item.href} href={item.href} exact={item.href.split("/").length <= 2}>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-sidebar to-transparent sm:hidden"
+          />
+        </div>
         <main className="min-w-0 flex-1 overflow-auto p-3 sm:p-4">{children}</main>
       </div>
     </div>

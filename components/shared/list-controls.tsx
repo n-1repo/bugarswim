@@ -71,7 +71,7 @@ export function ListControls({
   const from = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalItems);
 
-  const pagerButtonClass = "h-7 px-2 text-xs";
+  const pagerButtonClass = "h-11 px-2 text-xs sm:h-7";
 
   return (
     <div className="flex flex-col gap-2">

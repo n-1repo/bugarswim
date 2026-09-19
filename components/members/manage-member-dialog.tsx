@@ -31,7 +31,7 @@ export function ManageMemberDialog({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm font-medium text-primary underline-offset-2 transition-colors hover:underline hover:opacity-80 active:opacity-60"
+        className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary underline-offset-2 transition-colors hover:underline hover:opacity-80 active:opacity-60 sm:min-h-0 sm:px-0"
       >
         Kelola
       </button>
