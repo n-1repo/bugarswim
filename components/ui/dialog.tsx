@@ -74,7 +74,9 @@ export function Dialog({
       style={maxHeight ? { maxHeight } : undefined}
       className={cn(
         "fixed top-1/2 left-1/2 m-0 flex max-h-[90vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-background p-0 text-foreground shadow-xl transition-all duration-200 ease-out backdrop:transition-colors backdrop:duration-200",
-        visible ? "scale-100 opacity-100 backdrop:bg-black/50" : "scale-95 opacity-0 backdrop:bg-black/0",
+        visible
+          ? "pointer-events-auto scale-100 opacity-100 backdrop:bg-black/50"
+          : "pointer-events-none scale-95 opacity-0 backdrop:bg-black/0",
         className
       )}
     >
