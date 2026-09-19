@@ -32,3 +32,15 @@ export function formatMonth(value: string | Date): string {
     timeZone: JAKARTA_TZ,
   });
 }
+
+export function getJakartaDateString(offsetDays = 0): string {
+  return new Date(Date.now() + offsetDays * 86_400_000).toLocaleDateString("en-CA", {
+    timeZone: JAKARTA_TZ,
+  });
+}
+
+export function getJakartaDayRangeIso(): { startIso: string; endIso: string } {
+  const startIso = `${getJakartaDateString()}T00:00:00+07:00`;
+  const endIso = new Date(new Date(startIso).getTime() + 86_400_000).toISOString();
+  return { startIso, endIso };
+}
