@@ -80,30 +80,65 @@ export async function createSubscription(
   return { ok: true };
 }
 
-export async function cancelSubscriptionForm(formData: FormData): Promise<void> {
+export async function cancelSubscriptionForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const subscriptionId = String(formData.get("subscriptionId"));
   const supabase = await createServerSupabaseClient();
-  await supabase
+  const { error } = await supabase
     .from("subscriptions")
     .update({ status: "cancelled", end_date: new Date().toISOString().slice(0, 10) })
     .eq("id", subscriptionId);
+
+  if (error) {
+    return { ok: false, error: "Gagal membatalkan langganan" };
+  }
+
   revalidatePath("/admin/billing/subscriptions");
+  return { ok: true };
 }
 
-export async function markInvoicePaidForm(formData: FormData): Promise<void> {
+export async function markInvoicePaidForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const invoiceId = String(formData.get("invoiceId"));
   const supabase = await createServerSupabaseClient();
-  await supabase.rpc("mark_invoice_paid", { p_invoice_id: invoiceId });
+  const { error } = await supabase.rpc("mark_invoice_paid", { p_invoice_id: invoiceId });
+
+  if (error) {
+    return { ok: false, error: "Gagal menandai tagihan lunas: " + error.message };
+  }
+
   revalidatePath("/admin/billing/invoices");
   revalidatePath("/admin/cash-ledger");
+  return { ok: true };
 }
 
-export async function voidInvoiceForm(formData: FormData): Promise<void> {
+export async function voidInvoiceForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const invoiceId = String(formData.get("invoiceId"));
   const supabase = await createServerSupabaseClient();
-  await supabase.from("invoices").update({ status: "void" }).eq("id", invoiceId).eq("status", "outstanding");
+  const { error, data } = await supabase
+    .from("invoices")
+    .update({ status: "void" })
+    .eq("id", invoiceId)
+    .eq("status", "outstanding")
+    .select("id");
+
+  if (error) {
+    return { ok: false, error: "Gagal membatalkan tagihan" };
+  }
+  if (!data || data.length === 0) {
+    return { ok: false, error: "Tagihan tidak ditemukan atau sudah diproses" };
+  }
+
   revalidatePath("/admin/billing/invoices");
+  return { ok: true };
 }

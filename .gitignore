@@ -41,8 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# mvp/ (separate Vite project)
-mvp/node_modules
-mvp/dist
-mvp/*.tsbuildinfo
+# trash/mvp/ (quarantined, formerly mvp/, a separate Vite project)
+trash/mvp/node_modules
+trash/mvp/dist
+trash/mvp/*.tsbuildinfo
 __pycache__/

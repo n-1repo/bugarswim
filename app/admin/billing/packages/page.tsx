@@ -1,6 +1,9 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
+import { formatCurrency } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -26,7 +29,7 @@ export default async function PackagesPage({
   if (sp.q) query = query.ilike("name", `%${sp.q}%`);
   if (sp.status) query = query.eq("is_active", sp.status === "active");
 
-  const { data: packages, count } = await query.order("name").range(from, to);
+  const { data: packages, count, error } = await query.order("name").range(from, to);
 
   return (
     <div className="flex flex-col gap-3">
@@ -34,6 +37,7 @@ export default async function PackagesPage({
         <h1 className="text-xl font-semibold">Paket Keanggotaan</h1>
         <AddPackageDialog />
       </div>
+      <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Daftar Paket</h2>
       <ListControls
         searchPlaceholder="Cari nama paket..."
@@ -64,18 +68,12 @@ export default async function PackagesPage({
           {(packages ?? []).map((p) => (
             <TableRow key={p.id}>
               <TableCell>{p.name}</TableCell>
-              <TableCell>Rp {Number(p.price).toLocaleString("id-ID")}</TableCell>
+              <TableCell>{formatCurrency(p.price)}</TableCell>
               <TableCell>{p.sessions_included ?? "-"}</TableCell>
               <TableCell>{p.validity_weeks} minggu</TableCell>
             </TableRow>
           ))}
-          {(packages ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center text-muted-foreground">
-                Belum ada paket.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(packages ?? []).length === 0 ? <EmptyRow colSpan={4} message="Belum ada paket." /> : null}
         </TableBody>
       </Table>
     </div>

@@ -4,6 +4,8 @@ import { getLocations } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddMemberDialog } from "@/components/members/add-member-dialog";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -50,7 +52,7 @@ export default async function MembersPage({
   if (sp.status) query = query.eq("is_active", sp.status === "active");
   if (sp.location) query = query.eq("preferred_location_id", sp.location);
 
-  const [{ data, count }, locations] = await Promise.all([
+  const [{ data, count, error }, locations] = await Promise.all([
     query.order("full_name").range(from, to),
     getLocations(),
   ]);
@@ -63,6 +65,7 @@ export default async function MembersPage({
         <h1 className="text-xl font-semibold">Anggota</h1>
         <AddMemberDialog locations={locations} />
       </div>
+      <QueryErrorAlert error={error?.message} />
       <ListControls
         searchPlaceholder="Cari nama anak..."
         filters={[
@@ -117,13 +120,7 @@ export default async function MembersPage({
               </TableCell>
             </TableRow>
           ))}
-          {children.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Belum ada anggota.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {children.length === 0 ? <EmptyRow colSpan={6} message="Belum ada anggota." /> : null}
         </TableBody>
       </Table>
     </div>

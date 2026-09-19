@@ -40,5 +40,18 @@ export async function requireActionRole(role: AppRole | AppRole[]) {
   if (!roles.includes(session.app_role)) {
     throw new UnauthorizedError("Anda tidak memiliki akses untuk aksi ini");
   }
+
+  const supabase = await createServerSupabaseClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_active")
+    .eq("id", session.sub)
+    .maybeSingle();
+
+  if (!profile || !profile.is_active) {
+    await clearSession();
+    throw new UnauthorizedError("Akun Anda tidak aktif");
+  }
+
   return session;
 }

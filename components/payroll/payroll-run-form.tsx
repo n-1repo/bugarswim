@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createPayrollRun } from "@/lib/actions/payroll";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,27 @@ export function PayrollRunForm({
 }) {
   const [state, formAction, pending] = useActionState(createPayrollRun, {});
   useActionToast(state, "Gaji berhasil dibuat", onSuccess);
+  const [clientError, setClientError] = useState<string | null>(null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      {state.error ? (
+    <form
+      action={formAction}
+      className="flex flex-col gap-4"
+      onSubmit={(e) => {
+        const form = e.currentTarget;
+        const periodStart = (form.elements.namedItem("periodStart") as HTMLInputElement).value;
+        const periodEnd = (form.elements.namedItem("periodEnd") as HTMLInputElement).value;
+        if (periodStart && periodEnd && periodEnd < periodStart) {
+          e.preventDefault();
+          setClientError("Akhir periode harus setelah atau sama dengan awal periode");
+          return;
+        }
+        setClientError(null);
+      }}
+    >
+      {clientError || state.error ? (
         <Alert variant="destructive">
-          <AlertDescription>{state.error}</AlertDescription>
+          <AlertDescription>{clientError ?? state.error}</AlertDescription>
         </Alert>
       ) : null}
       <div className="flex flex-col gap-1.5">

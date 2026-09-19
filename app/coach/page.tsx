@@ -2,6 +2,9 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
+import { formatDateTime, formatTime } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -24,7 +27,7 @@ interface ClassRow {
 export default async function CoachSchedulePage() {
   const session = await getSession();
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("classes")
     .select("id, start_time, end_time, capacity, locations(name), class_types(name), bookings(count)")
     .eq("instructor_id", session?.sub)
@@ -35,6 +38,7 @@ export default async function CoachSchedulePage() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Jadwal Saya</h1>
+      <QueryErrorAlert error={error?.message} />
       <Table>
         <TableHeader>
           <TableRow>
@@ -49,8 +53,7 @@ export default async function CoachSchedulePage() {
           {classes.map((cls) => (
             <TableRow key={cls.id}>
               <TableCell>
-                {new Date(cls.start_time).toLocaleString("id-ID")} —{" "}
-                {new Date(cls.end_time).toLocaleTimeString("id-ID")}
+                {formatDateTime(cls.start_time)} — {formatTime(cls.end_time)}
               </TableCell>
               <TableCell>{cls.locations?.name ?? "-"}</TableCell>
               <TableCell>{cls.class_types?.name ?? "-"}</TableCell>
@@ -65,11 +68,7 @@ export default async function CoachSchedulePage() {
             </TableRow>
           ))}
           {classes.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                Belum ada kelas terjadwal.
-              </TableCell>
-            </TableRow>
+            <EmptyRow colSpan={5} message="Belum ada kelas terjadwal." />
           ) : null}
         </TableBody>
       </Table>

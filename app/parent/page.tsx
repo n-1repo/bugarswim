@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatDateTime, formatTime } from "@/lib/format";
 
 interface ChildWithBookings {
   id: string;
@@ -19,7 +21,7 @@ interface ChildWithBookings {
 
 export default async function ParentSchedulePage() {
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("children")
     .select(
       "id, full_name, bookings(id, is_attended, classes(start_time, end_time, locations(name), class_types(name)))"
@@ -32,6 +34,7 @@ export default async function ParentSchedulePage() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Jadwal Anak</h1>
+      <QueryErrorAlert error={error?.message} />
       {children.map((child) => (
         <Card key={child.id}>
           <CardHeader>
@@ -48,8 +51,7 @@ export default async function ParentSchedulePage() {
                     <div>
                       <p className="font-medium">{b.classes.class_types?.name ?? "Kelas"}</p>
                       <p className="text-muted-foreground">
-                        {new Date(b.classes.start_time).toLocaleString("id-ID")} —{" "}
-                        {new Date(b.classes.end_time).toLocaleTimeString("id-ID")} ·{" "}
+                        {formatDateTime(b.classes.start_time)} — {formatTime(b.classes.end_time)} ·{" "}
                         {b.classes.locations?.name}
                       </p>
                     </div>

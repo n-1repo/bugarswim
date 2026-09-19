@@ -18,24 +18,30 @@ export function LoginForm() {
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: formData.get("email"),
-        password: formData.get("password"),
-      }),
-    });
-    const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Gagal masuk");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.get("email"),
+          password: formData.get("password"),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data) {
+        setError(data?.error ?? "Gagal masuk. Silakan coba lagi.");
+        return;
+      }
+
+      router.push(data.redirectTo);
+      router.refresh();
+    } catch {
+      setError("Gagal terhubung ke server. Silakan coba lagi.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push(data.redirectTo);
-    router.refresh();
   }
 
   return (

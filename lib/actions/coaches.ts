@@ -96,14 +96,22 @@ export async function updateCoach(
   return { ok: true };
 }
 
-export async function toggleCoachActiveForm(formData: FormData): Promise<void> {
+export async function toggleCoachActiveForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const coachId = String(formData.get("coachId"));
   const isActive = formData.get("isActive") === "true";
 
   const supabase = await createServerSupabaseClient();
-  await supabase.from("profiles").update({ is_active: isActive }).eq("id", coachId);
+  const { error } = await supabase.from("profiles").update({ is_active: isActive }).eq("id", coachId);
+
+  if (error) {
+    return { ok: false, error: "Gagal memperbarui status pelatih" };
+  }
 
   revalidatePath("/admin/coaches");
   revalidatePath(`/admin/coaches/${coachId}`);
+  return { ok: true };
 }

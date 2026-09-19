@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
+import { ActionForm } from "@/components/shared/action-form";
 
 interface CoachDetail {
   id: string;
@@ -42,21 +42,19 @@ export function CoachEditForm({ coach }: { coach: CoachDetail }) {
         </Button>
       </form>
 
-      <form action={toggleCoachActiveForm}>
-        <input type="hidden" name="coachId" value={coach.id} />
-        <input type="hidden" name="isActive" value={(!coach.is_active).toString()} />
-        <ActionSubmitButton
-          variant={coach.is_active ? "destructive" : "secondary"}
-          confirmMessage={
-            coach.is_active
-              ? "Nonaktifkan pelatih ini? Pelatih tidak akan bisa login sampai diaktifkan kembali."
-              : undefined
-          }
-          successMessage={coach.is_active ? "Pelatih dinonaktifkan" : "Pelatih diaktifkan kembali"}
-        >
-          {coach.is_active ? "Nonaktifkan Pelatih" : "Aktifkan Kembali"}
-        </ActionSubmitButton>
-      </form>
+      <ActionForm
+        action={toggleCoachActiveForm}
+        fields={{ coachId: coach.id, isActive: (!coach.is_active).toString() }}
+        confirmMessage={
+          coach.is_active
+            ? "Nonaktifkan pelatih ini? Pelatih tidak akan bisa login sampai diaktifkan kembali."
+            : undefined
+        }
+        successMessage={coach.is_active ? "Pelatih dinonaktifkan" : "Pelatih diaktifkan kembali"}
+        variant={coach.is_active ? "destructive" : "secondary"}
+      >
+        {coach.is_active ? "Nonaktifkan Pelatih" : "Aktifkan Kembali"}
+      </ActionForm>
     </div>
   );
 }

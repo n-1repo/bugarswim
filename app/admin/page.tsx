@@ -2,7 +2,10 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/reports/stat-card";
 import { CashflowChart } from "@/components/reports/cashflow-chart";
 import { RevenueByProgramChart } from "@/components/reports/revenue-chart";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency, formatMonth } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -12,24 +15,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-function formatRupiah(value: number) {
-  return `Rp ${Number(value).toLocaleString("id-ID")}`;
-}
-
-function formatMonth(value: string) {
-  return new Date(value).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
-}
-
 export default async function AdminDashboardPage() {
   const supabase = await createServerSupabaseClient();
 
   const [
-    { data: revenue },
-    { data: outstanding },
-    { data: cashFlow },
-    { data: revenueByProgram },
-    { data: payrollCost },
-    { data: memberCounts },
+    { data: revenue, error: revenueError },
+    { data: outstanding, error: outstandingError },
+    { data: cashFlow, error: cashFlowError },
+    { data: revenueByProgram, error: revenueByProgramError },
+    { data: payrollCost, error: payrollCostError },
+    { data: memberCounts, error: memberCountsError },
   ] = await Promise.all([
     supabase.from("report_revenue").select("month, revenue"),
     supabase.from("report_outstanding").select("outstanding_count, outstanding_amount").maybeSingle(),
@@ -38,6 +33,14 @@ export default async function AdminDashboardPage() {
     supabase.from("report_payroll_cost").select("month, payroll_cost"),
     supabase.from("report_member_counts").select("active_children, inactive_children").maybeSingle(),
   ]);
+
+  const queryError =
+    revenueError ??
+    outstandingError ??
+    cashFlowError ??
+    revenueByProgramError ??
+    payrollCostError ??
+    memberCountsError;
 
   const totalRevenue = (revenue ?? []).reduce((sum, r) => sum + Number(r.revenue), 0);
   const totalPayrollCost = (payrollCost ?? []).reduce((sum, r) => sum + Number(r.payroll_cost), 0);
@@ -57,14 +60,15 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Dashboard</h1>
+      <QueryErrorAlert error={queryError?.message} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Pendapatan" value={formatRupiah(totalRevenue)} />
+        <StatCard title="Total Pendapatan" value={formatCurrency(totalRevenue)} />
         <StatCard
           title="Tagihan Belum Bayar"
-          value={`${outstanding?.outstanding_count ?? 0} (${formatRupiah(outstanding?.outstanding_amount ?? 0)})`}
+          value={`${outstanding?.outstanding_count ?? 0} (${formatCurrency(outstanding?.outstanding_amount ?? 0)})`}
         />
-        <StatCard title="Total Biaya Gaji" value={formatRupiah(totalPayrollCost)} />
+        <StatCard title="Total Biaya Gaji" value={formatCurrency(totalPayrollCost)} />
         <StatCard
           title="Anggota Aktif / Nonaktif"
           value={`${memberCounts?.active_children ?? 0} / ${memberCounts?.inactive_children ?? 0}`}
@@ -105,15 +109,11 @@ export default async function AdminDashboardPage() {
               {(payrollCost ?? []).map((p) => (
                 <TableRow key={p.month}>
                   <TableCell>{formatMonth(p.month)}</TableCell>
-                  <TableCell>{formatRupiah(p.payroll_cost)}</TableCell>
+                  <TableCell>{formatCurrency(p.payroll_cost)}</TableCell>
                 </TableRow>
               ))}
               {(payrollCost ?? []).length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
-                    Belum ada data gaji.
-                  </TableCell>
-                </TableRow>
+                <EmptyRow colSpan={2} message="Belum ada data gaji." />
               ) : null}
             </TableBody>
           </Table>

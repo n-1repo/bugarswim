@@ -20,6 +20,16 @@ export function ChangePasswordForm() {
         </Alert>
       ) : null}
       <div className="flex flex-col gap-1.5">
+        <Label htmlFor="currentPassword">Kata Sandi Saat Ini</Label>
+        <Input
+          id="currentPassword"
+          name="currentPassword"
+          type="password"
+          required
+          autoComplete="current-password"
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="newPassword">Kata Sandi Baru</Label>
         <Input
           id="newPassword"
@@ -27,8 +37,13 @@ export function ChangePasswordForm() {
           type="password"
           required
           minLength={8}
+          pattern="(?=.*[A-Za-z])(?=.*\d).+"
+          title="Minimal 8 karakter, mengandung huruf dan angka"
           autoComplete="new-password"
         />
+        <p className="text-xs text-muted-foreground">
+          Minimal 8 karakter, mengandung huruf dan angka.
+        </p>
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Menyimpan..." : "Simpan Kata Sandi"}

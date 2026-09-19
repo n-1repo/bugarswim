@@ -3,7 +3,9 @@ import { getActiveChildren, getActivePackages } from "@/lib/data/lookups";
 import { cancelSubscriptionForm } from "@/lib/actions/billing";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
+import { ActionForm } from "@/components/shared/action-form";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,8 +43,13 @@ export default async function SubscriptionsPage({
   if (sp.status) query = query.eq("status", sp.status);
   if (sp.packageId) query = query.eq("package_id", sp.packageId);
 
-  const [{ data: subscriptions, count }, { data: usage }, childOptions, activePackages, { data: allPackages }] =
-    await Promise.all([
+  const [
+    { data: subscriptions, count, error },
+    { data: usage },
+    childOptions,
+    activePackages,
+    { data: allPackages },
+  ] = await Promise.all([
       query.order("start_date", { ascending: false }).range(from, to),
       supabase.from("subscription_usage").select("subscription_id, sessions_remaining, is_expired"),
       getActiveChildren(),
@@ -55,6 +62,7 @@ export default async function SubscriptionsPage({
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Langganan</h1>
+      <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Daftar Langganan</h2>
       <ListControls
         searchPlaceholder="Cari nama anak..."
@@ -118,28 +126,23 @@ export default async function SubscriptionsPage({
                 </TableCell>
                 <TableCell>
                   {row.status === "active" ? (
-                    <form action={cancelSubscriptionForm}>
-                      <input type="hidden" name="subscriptionId" value={row.id} />
-                      <ActionSubmitButton
-                        variant="ghost"
-                        size="sm"
-                        confirmMessage="Batalkan langganan ini? Tindakan ini tidak bisa dibatalkan."
-                        successMessage="Langganan dibatalkan"
-                      >
-                        Batalkan Langganan
-                      </ActionSubmitButton>
-                    </form>
+                    <ActionForm
+                      action={cancelSubscriptionForm}
+                      fields={{ subscriptionId: row.id }}
+                      confirmMessage="Batalkan langganan ini? Tindakan ini tidak bisa dibatalkan."
+                      successMessage="Langganan dibatalkan"
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Batalkan Langganan
+                    </ActionForm>
                   ) : null}
                 </TableCell>
               </TableRow>
             );
           })}
           {(subscriptions ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
-                Belum ada langganan.
-              </TableCell>
-            </TableRow>
+            <EmptyRow colSpan={7} message="Belum ada langganan." />
           ) : null}
         </TableBody>
       </Table>

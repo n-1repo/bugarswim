@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { markAttendanceForm, updateBookingNotesForm } from "@/lib/actions/attendance";
+import { markAttendanceForm } from "@/lib/actions/attendance";
+import { ActionForm } from "@/components/shared/action-form";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -14,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { NotesField } from "@/components/attendance/notes-field";
 
 export interface AttendanceBooking {
   id: string;
@@ -74,31 +74,22 @@ export function AttendanceRoster({
                 </Badge>
               </TableCell>
               <TableCell>
-                <form action={updateBookingNotesForm}>
-                  <input type="hidden" name="bookingId" value={b.id} />
-                  <input type="hidden" name="classId" value={classId} />
-                  <Input
-                    name="notes"
-                    defaultValue={b.notes ?? ""}
-                    placeholder="Tambahkan catatan..."
-                    className="min-w-40"
-                    onBlur={(e) => {
-                      if (e.target.value === (b.notes ?? "")) return;
-                      toast.success("Catatan disimpan");
-                      e.currentTarget.form?.requestSubmit();
-                    }}
-                  />
-                </form>
+                <NotesField bookingId={b.id} classId={classId} notes={b.notes} />
               </TableCell>
               <TableCell>
-                <form action={markAttendanceForm}>
-                  <input type="hidden" name="bookingId" value={b.id} />
-                  <input type="hidden" name="classId" value={classId} />
-                  <input type="hidden" name="isAttended" value={(!b.isAttended).toString()} />
-                  <Button type="submit" size="sm" variant={b.isAttended ? "outline" : "default"}>
-                    {b.isAttended ? "Tandai Belum Hadir" : "Tandai Hadir"}
-                  </Button>
-                </form>
+                <ActionForm
+                  action={markAttendanceForm}
+                  fields={{
+                    bookingId: b.id,
+                    classId,
+                    isAttended: (!b.isAttended).toString(),
+                  }}
+                  successMessage={b.isAttended ? "Ditandai belum hadir" : "Ditandai hadir"}
+                  size="sm"
+                  variant={b.isAttended ? "outline" : "default"}
+                >
+                  {b.isAttended ? "Tandai Belum Hadir" : "Tandai Hadir"}
+                </ActionForm>
               </TableCell>
             </TableRow>
           ))}

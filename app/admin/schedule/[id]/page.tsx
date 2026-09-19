@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { deleteClassForm, removeBookingForm } from "@/lib/actions/schedule";
 import { BackLink } from "@/components/shared/back-link";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
-import { Button } from "@/components/ui/button";
+import { ActionForm } from "@/components/shared/action-form";
+import { EmptyRow } from "@/components/shared/empty-row";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddBookingForm } from "@/components/schedule/add-booking-form";
+import { formatDateTime, formatTime } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -63,22 +64,21 @@ export default async function ClassDetailPage({
         <div>
           <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
           <p className="text-sm text-muted-foreground">
-            {new Date(info.start_time).toLocaleString("id-ID")} —{" "}
-            {new Date(info.end_time).toLocaleTimeString("id-ID")} · {info.locations?.name} ·{" "}
+            {formatDateTime(info.start_time)} —{" "}
+            {formatTime(info.end_time)} · {info.locations?.name} ·{" "}
             {info.profiles?.full_name}
           </p>
         </div>
-        <form action={deleteClassForm}>
-          <input type="hidden" name="classId" value={id} />
-          <ActionSubmitButton
-            variant="destructive"
-            size="sm"
-            confirmMessage={`Hapus kelas ini beserta ${(bookings ?? []).length} pendaftaran yang ada? Tindakan ini tidak bisa dibatalkan.`}
-            successMessage="Kelas dihapus"
-          >
-            Hapus Kelas
-          </ActionSubmitButton>
-        </form>
+        <ActionForm
+          action={deleteClassForm}
+          fields={{ classId: id }}
+          confirmMessage={`Hapus kelas ini beserta ${(bookings ?? []).length} pendaftaran yang ada? Tindakan ini tidak bisa dibatalkan.`}
+          successMessage="Kelas dihapus"
+          variant="destructive"
+          size="sm"
+        >
+          Hapus Kelas
+        </ActionForm>
       </div>
 
       <Card>
@@ -108,23 +108,21 @@ export default async function ClassDetailPage({
                     <TableCell>{booking.children.full_name}</TableCell>
                     <TableCell>{booking.is_attended ? "Hadir" : "Belum"}</TableCell>
                     <TableCell>
-                      <form action={removeBookingForm}>
-                        <input type="hidden" name="bookingId" value={booking.id} />
-                        <input type="hidden" name="classId" value={id} />
-                        <Button type="submit" variant="ghost" size="sm">
-                          Batalkan Pendaftaran
-                        </Button>
-                      </form>
+                      <ActionForm
+                        action={removeBookingForm}
+                        fields={{ bookingId: booking.id, classId: id }}
+                        successMessage="Pendaftaran dibatalkan"
+                        variant="ghost"
+                        size="sm"
+                      >
+                        Batalkan Pendaftaran
+                      </ActionForm>
                     </TableCell>
                   </TableRow>
                 );
               })}
               {(bookings ?? []).length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    Belum ada peserta.
-                  </TableCell>
-                </TableRow>
+                <EmptyRow colSpan={3} message="Belum ada peserta." />
               ) : null}
             </TableBody>
           </Table>

@@ -2,8 +2,12 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { markInvoicePaidForm, voidInvoiceForm } from "@/lib/actions/billing";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
+import { ActionForm } from "@/components/shared/action-form";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/format";
+import { INVOICE_STATUS_LABEL, INVOICE_STATUS_VARIANT } from "@/lib/status";
 import {
   Table,
   TableBody,
@@ -12,18 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const STATUS_VARIANT: Record<string, "success" | "secondary" | "destructive"> = {
-  paid: "success",
-  outstanding: "secondary",
-  void: "destructive",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  paid: "Lunas",
-  outstanding: "Belum Bayar",
-  void: "Dibatalkan",
-};
 
 export default async function InvoicesPage({
   searchParams,
@@ -42,11 +34,12 @@ export default async function InvoicesPage({
   if (sp.q) query = query.ilike("children.full_name", `%${sp.q}%`);
   if (sp.status) query = query.eq("status", sp.status);
 
-  const { data: invoices, count } = await query.order("due_date", { ascending: false }).range(from, to);
+  const { data: invoices, count, error } = await query.order("due_date", { ascending: false }).range(from, to);
 
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Tagihan</h1>
+      <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Daftar Tagihan</h2>
       <ListControls
         searchPlaceholder="Cari nama anak..."
@@ -54,7 +47,7 @@ export default async function InvoicesPage({
           {
             key: "status",
             label: "Semua Status",
-            options: Object.entries(STATUS_LABEL).map(([value, label]) => ({ value, label })),
+            options: Object.entries(INVOICE_STATUS_LABEL).map(([value, label]) => ({ value, label })),
           },
         ]}
         totalItems={count ?? 0}
@@ -90,45 +83,40 @@ export default async function InvoicesPage({
                   {row.period_start} – {row.period_end}
                 </TableCell>
                 <TableCell>{row.due_date}</TableCell>
-                <TableCell>Rp {Number(row.amount).toLocaleString("id-ID")}</TableCell>
+                <TableCell>{formatCurrency(row.amount)}</TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANT[row.status] ?? "secondary"}>
-                    {STATUS_LABEL[row.status] ?? row.status}
+                  <Badge variant={INVOICE_STATUS_VARIANT[row.status] ?? "secondary"}>
+                    {INVOICE_STATUS_LABEL[row.status] ?? row.status}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   {row.status === "outstanding" ? (
                     <div className="flex gap-2">
-                      <form action={markInvoicePaidForm}>
-                        <input type="hidden" name="invoiceId" value={row.id} />
-                        <ActionSubmitButton size="sm" successMessage="Tagihan ditandai lunas">
-                          Tandai Lunas
-                        </ActionSubmitButton>
-                      </form>
-                      <form action={voidInvoiceForm}>
-                        <input type="hidden" name="invoiceId" value={row.id} />
-                        <ActionSubmitButton
-                          size="sm"
-                          variant="ghost"
-                          confirmMessage="Batalkan tagihan ini? Tindakan ini tidak bisa dibatalkan."
-                          successMessage="Tagihan dibatalkan"
-                        >
-                          Batalkan Tagihan
-                        </ActionSubmitButton>
-                      </form>
+                      <ActionForm
+                        action={markInvoicePaidForm}
+                        fields={{ invoiceId: row.id }}
+                        successMessage="Tagihan ditandai lunas"
+                        size="sm"
+                      >
+                        Tandai Lunas
+                      </ActionForm>
+                      <ActionForm
+                        action={voidInvoiceForm}
+                        fields={{ invoiceId: row.id }}
+                        confirmMessage="Batalkan tagihan ini? Tindakan ini tidak bisa dibatalkan."
+                        successMessage="Tagihan dibatalkan"
+                        size="sm"
+                        variant="ghost"
+                      >
+                        Batalkan Tagihan
+                      </ActionForm>
                     </div>
                   ) : null}
                 </TableCell>
               </TableRow>
             );
           })}
-          {(invoices ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Belum ada tagihan.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(invoices ?? []).length === 0 ? <EmptyRow colSpan={6} message="Belum ada tagihan." /> : null}
         </TableBody>
       </Table>
     </div>

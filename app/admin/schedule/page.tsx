@@ -4,6 +4,9 @@ import { getActiveCoaches, getClassTypes, getLocations } from "@/lib/data/lookup
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddClassDialog } from "@/components/schedule/add-class-dialog";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
+import { formatDateTime, formatTime } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -49,7 +52,7 @@ export default async function SchedulePage({
   if (sp.location) query = query.eq("location_id", sp.location);
   if (sp.classType) query = query.eq("class_type_id", sp.classType);
 
-  const [{ data, count }, coaches, locations, classTypes] = await Promise.all([
+  const [{ data, count, error }, coaches, locations, classTypes] = await Promise.all([
     query.order("start_time").range(from, to),
     getActiveCoaches(),
     getLocations(),
@@ -64,6 +67,7 @@ export default async function SchedulePage({
         <h1 className="text-xl font-semibold">Jadwal Kelas</h1>
         <AddClassDialog coaches={coaches} locations={locations} classTypes={classTypes} />
       </div>
+      <QueryErrorAlert error={error?.message} />
       <ListControls
         filters={[
           {
@@ -101,8 +105,7 @@ export default async function SchedulePage({
           {classes.map((cls) => (
             <TableRow key={cls.id}>
               <TableCell>
-                {new Date(cls.start_time).toLocaleString("id-ID")} —{" "}
-                {new Date(cls.end_time).toLocaleTimeString("id-ID")}
+                {formatDateTime(cls.start_time)} — {formatTime(cls.end_time)}
               </TableCell>
               <TableCell>{cls.profiles?.full_name ?? "-"}</TableCell>
               <TableCell>{cls.locations?.name ?? "-"}</TableCell>
@@ -120,13 +123,7 @@ export default async function SchedulePage({
               </TableCell>
             </TableRow>
           ))}
-          {classes.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Belum ada jadwal kelas.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {classes.length === 0 ? <EmptyRow colSpan={6} message="Belum ada jadwal kelas." /> : null}
         </TableBody>
       </Table>
     </div>

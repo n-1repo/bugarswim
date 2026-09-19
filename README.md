@@ -4,8 +4,6 @@ Swimming club management app: membership, scheduling, attendance, billing,
 cash ledger, coach payroll, and promo announcements, for admin/coach/parent
 roles.
 
-Now Live at https://n-1repo.github.io/bugarswim/
-
 Stack: Next.js (App Router) + TypeScript, Supabase Postgres with Row Level
 Security, Tailwind CSS, Vercel deployment.
 
@@ -27,10 +25,13 @@ tokens won't validate against PostgREST — in that case use Supabase's
 Third-Party Auth (JWKS) support instead of `lib/auth/jwt.ts` as written.
 
 The service-role key is used only in a few narrow, reviewed places (never in
-client-reachable code): login lookup, creating a parent/coach account
-together with its credentials row, the monthly invoice-generation cron and
-its "generate now" admin button. Every other read/write goes through the
-per-request JWT-bound client, so RLS is the real security boundary.
+client-reachable code): login lookup and creating a parent/coach account
+together with its credentials row. Every other read/write goes through the
+per-request JWT-bound client, so RLS is the real security boundary. Every
+service-role action also re-checks the caller's `is_active` status live
+(`requireActionRole` in `lib/auth/guard.ts`) rather than trusting the
+session JWT alone, so a deactivated account loses access immediately
+instead of waiting out the JWT's 7-day lifetime.
 
 Deactivating an account (`profiles.is_active = false`) cuts off all DB
 access immediately, even though its JWT technically hasn't expired — this is
@@ -52,8 +53,6 @@ functions, not just in individual policies.
      never expose to the client).
    - `SUPABASE_JWT_SECRET` — Project Settings → API → JWT Keys (legacy
      secret; see the note above).
-   - `CRON_SECRET` — any random string; Vercel Cron sends it automatically
-     as a bearer token once set as an env var on the project.
    - `NEXT_PUBLIC_CLUB_NAME` — optional; the name shown on the login page,
      sidebar header, and browser tab. Defaults to "Bugarswim" if unset.
 5. Seed the first admin account:
@@ -65,8 +64,9 @@ functions, not just in individual policies.
 ## Deploying to Vercel
 
 Create a Vercel project linked to this repo, set the same environment
-variables there, and deploy. `vercel.json` already schedules the monthly
-invoice-generation cron (`/api/cron/generate-invoices`, 1st of each month).
+variables there, and deploy. Billing is not on a cron: one invoice is
+created automatically per subscription purchase (see `supabase/migrations/
+20250101000012_session_packages.sql`), not generated on a schedule.
 
 ## Reusing this codebase for a new client
 

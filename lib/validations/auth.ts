@@ -12,5 +12,6 @@ export const passwordSchema = z
   .regex(/[0-9]/, "Kata sandi harus mengandung angka");
 
 export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Kata sandi saat ini wajib diisi"),
   newPassword: passwordSchema,
 });

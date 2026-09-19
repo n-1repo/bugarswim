@@ -40,14 +40,14 @@ export interface ParentMatch {
 
 export async function searchParentByContact(contact: string): Promise<ParentMatch[]> {
   await requireActionRole("admin");
-  const trimmed = contact.trim();
-  if (!trimmed) return [];
+  const sanitized = contact.trim().replace(/[,()]/g, "");
+  if (!sanitized) return [];
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase
     .from("profiles")
     .select("id, full_name, email, phone")
     .eq("role", "parent")
-    .or(`email.ilike.%${trimmed}%,phone.ilike.%${trimmed}%,full_name.ilike.%${trimmed}%`)
+    .or(`email.ilike.%${sanitized}%,phone.ilike.%${sanitized}%,full_name.ilike.%${sanitized}%`)
     .limit(5);
   return (data as ParentMatch[]) ?? [];
 }
@@ -186,14 +186,22 @@ export async function updateChild(
   return { ok: true };
 }
 
-export async function toggleChildActiveForm(formData: FormData): Promise<void> {
+export async function toggleChildActiveForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const childId = String(formData.get("childId"));
   const isActive = formData.get("isActive") === "true";
 
   const supabase = await createServerSupabaseClient();
-  await supabase.from("children").update({ is_active: isActive }).eq("id", childId);
+  const { error } = await supabase.from("children").update({ is_active: isActive }).eq("id", childId);
+
+  if (error) {
+    return { ok: false, error: "Gagal memperbarui status anggota" };
+  }
 
   revalidatePath("/admin/members");
   revalidatePath(`/admin/members/${childId}`);
+  return { ok: true };
 }

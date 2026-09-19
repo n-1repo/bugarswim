@@ -27,7 +27,19 @@ export async function createPromo(
   let imageUrl: string | null = null;
   const file = formData.get("image");
   if (file instanceof File && file.size > 0) {
-    const ext = file.name.split(".").pop() ?? "jpg";
+    const ALLOWED_TYPES: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+    };
+    const ext = ALLOWED_TYPES[file.type];
+    if (!ext) {
+      return { ok: false, error: "Format gambar harus JPEG, PNG, atau WebP" };
+    }
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return { ok: false, error: "Ukuran gambar maksimal 5MB" };
+    }
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("promo")
@@ -56,11 +68,20 @@ export async function createPromo(
   return { ok: true };
 }
 
-export async function deletePromoForm(formData: FormData): Promise<void> {
+export async function deletePromoForm(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   await requireActionRole("admin");
   const promoId = String(formData.get("promoId"));
   const supabase = await createServerSupabaseClient();
-  await supabase.from("promo").delete().eq("id", promoId);
+  const { error } = await supabase.from("promo").delete().eq("id", promoId);
+
+  if (error) {
+    return { ok: false, error: "Gagal menghapus promo" };
+  }
+
   revalidatePath("/admin/promo");
   revalidatePath("/parent/promo");
+  return { ok: true };
 }

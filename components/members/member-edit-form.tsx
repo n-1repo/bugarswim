@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
+import { ActionForm } from "@/components/shared/action-form";
 import type { Lookup } from "@/lib/data/lookups";
 
 interface ChildDetail {
@@ -85,21 +85,17 @@ export function MemberEditForm({
         </Button>
       </form>
 
-      <form action={toggleChildActiveForm}>
-        <input type="hidden" name="childId" value={child.id} />
-        <input type="hidden" name="isActive" value={(!child.is_active).toString()} />
-        <ActionSubmitButton
-          variant={child.is_active ? "destructive" : "secondary"}
-          confirmMessage={
-            child.is_active
-              ? "Nonaktifkan anggota ini? Anak ini akan ditandai nonaktif."
-              : undefined
-          }
-          successMessage={child.is_active ? "Anggota dinonaktifkan" : "Anggota diaktifkan kembali"}
-        >
-          {child.is_active ? "Nonaktifkan Anggota" : "Aktifkan Kembali"}
-        </ActionSubmitButton>
-      </form>
+      <ActionForm
+        action={toggleChildActiveForm}
+        fields={{ childId: child.id, isActive: (!child.is_active).toString() }}
+        confirmMessage={
+          child.is_active ? "Nonaktifkan anggota ini? Anak ini akan ditandai nonaktif." : undefined
+        }
+        successMessage={child.is_active ? "Anggota dinonaktifkan" : "Anggota diaktifkan kembali"}
+        variant={child.is_active ? "destructive" : "secondary"}
+      >
+        {child.is_active ? "Nonaktifkan Anggota" : "Aktifkan Kembali"}
+      </ActionForm>
     </div>
   );
 }

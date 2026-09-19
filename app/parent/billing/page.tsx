@@ -1,5 +1,9 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/format";
+import { INVOICE_STATUS_LABEL, INVOICE_STATUS_VARIANT } from "@/lib/status";
 import {
   Table,
   TableBody,
@@ -9,21 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const STATUS_VARIANT: Record<string, "success" | "secondary" | "destructive"> = {
-  paid: "success",
-  outstanding: "secondary",
-  void: "destructive",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  paid: "Lunas",
-  outstanding: "Belum Bayar",
-  void: "Dibatalkan",
-};
-
 export default async function ParentBillingPage() {
   const supabase = await createServerSupabaseClient();
-  const [{ data: invoices }, { data: activeSubscriptions }, { data: usage }] = await Promise.all([
+  const [{ data: invoices, error }, { data: activeSubscriptions }, { data: usage }] = await Promise.all([
     supabase
       .from("invoices")
       .select("id, amount, status, due_date, period_start, period_end, children(full_name)")
@@ -48,6 +40,7 @@ export default async function ParentBillingPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Tagihan</h1>
+      <QueryErrorAlert error={error?.message} />
 
       {activePacks.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -110,22 +103,16 @@ export default async function ParentBillingPage() {
                   {row.period_start} – {row.period_end}
                 </TableCell>
                 <TableCell>{row.due_date}</TableCell>
-                <TableCell>Rp {Number(row.amount).toLocaleString("id-ID")}</TableCell>
+                <TableCell>{formatCurrency(row.amount)}</TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANT[row.status] ?? "secondary"}>
-                    {STATUS_LABEL[row.status] ?? row.status}
+                  <Badge variant={INVOICE_STATUS_VARIANT[row.status] ?? "secondary"}>
+                    {INVOICE_STATUS_LABEL[row.status] ?? row.status}
                   </Badge>
                 </TableCell>
               </TableRow>
             );
           })}
-          {(invoices ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                Belum ada tagihan.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(invoices ?? []).length === 0 ? <EmptyRow colSpan={5} message="Belum ada tagihan." /> : null}
         </TableBody>
       </Table>
     </div>

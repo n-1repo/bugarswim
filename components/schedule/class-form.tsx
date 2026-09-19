@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createClass } from "@/lib/actions/schedule";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,27 @@ export function ClassForm({
 }) {
   const [state, formAction, pending] = useActionState(createClass, {});
   useActionToast(state, "Kelas berhasil ditambahkan", onSuccess);
+  const [clientError, setClientError] = useState<string | null>(null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      {state.error ? (
+    <form
+      action={formAction}
+      className="flex flex-col gap-4"
+      onSubmit={(e) => {
+        const form = e.currentTarget;
+        const startTime = (form.elements.namedItem("startTime") as HTMLInputElement).value;
+        const endTime = (form.elements.namedItem("endTime") as HTMLInputElement).value;
+        if (startTime && endTime && endTime <= startTime) {
+          e.preventDefault();
+          setClientError("Waktu selesai harus setelah waktu mulai");
+          return;
+        }
+        setClientError(null);
+      }}
+    >
+      {clientError || state.error ? (
         <Alert variant="destructive">
-          <AlertDescription>{state.error}</AlertDescription>
+          <AlertDescription>{clientError ?? state.error}</AlertDescription>
         </Alert>
       ) : null}
       <div className="flex flex-col gap-1.5">

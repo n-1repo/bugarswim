@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
 import { AddCoachDialog } from "@/components/coaches/add-coach-dialog";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -29,7 +31,7 @@ export default async function CoachesPage({
   if (sp.q) query = query.or(`full_name.ilike.%${sp.q}%,email.ilike.%${sp.q}%`);
   if (sp.status) query = query.eq("is_active", sp.status === "active");
 
-  const { data: coaches, count } = await query.order("full_name").range(from, to);
+  const { data: coaches, count, error } = await query.order("full_name").range(from, to);
 
   return (
     <div className="flex flex-col gap-3">
@@ -37,6 +39,7 @@ export default async function CoachesPage({
         <h1 className="text-xl font-semibold">Pelatih</h1>
         <AddCoachDialog />
       </div>
+      <QueryErrorAlert error={error?.message} />
       <ListControls
         searchPlaceholder="Cari nama atau email..."
         filters={[
@@ -84,13 +87,7 @@ export default async function CoachesPage({
               </TableCell>
             </TableRow>
           ))}
-          {(coaches ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                Belum ada pelatih.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(coaches ?? []).length === 0 ? <EmptyRow colSpan={5} message="Belum ada pelatih." /> : null}
         </TableBody>
       </Table>
     </div>

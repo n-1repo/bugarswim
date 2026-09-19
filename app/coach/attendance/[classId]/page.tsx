@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/shared/back-link";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { AttendanceRoster } from "@/components/attendance/attendance-roster";
+import { formatDate, formatTime } from "@/lib/format";
 
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
@@ -21,7 +23,7 @@ export default async function AttendancePage({
   const { classId } = await params;
   const supabase = await createServerSupabaseClient();
 
-  const [{ data: cls }, { data: bookings }] = await Promise.all([
+  const [{ data: cls }, { data: bookings, error: bookingsError }] = await Promise.all([
     supabase
       .from("classes")
       .select("id, start_time, end_time, locations(name), class_types(name)")
@@ -61,13 +63,14 @@ export default async function AttendancePage({
     <div className="flex max-w-3xl flex-col gap-4">
       <BackLink href="/coach" label="Jadwal Saya" />
       <h1 className="text-2xl font-semibold">{info.class_types?.name ?? "Kelas"}</h1>
+      <QueryErrorAlert error={bookingsError?.message} />
 
       <Card>
         <CardContent className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4">
-          <InfoItem label="Tanggal" value={new Date(info.start_time).toLocaleDateString("id-ID")} />
+          <InfoItem label="Tanggal" value={formatDate(info.start_time)} />
           <InfoItem
             label="Waktu"
-            value={`${new Date(info.start_time).toLocaleTimeString("id-ID")} — ${new Date(info.end_time).toLocaleTimeString("id-ID")}`}
+            value={`${formatTime(info.start_time)} — ${formatTime(info.end_time)}`}
           />
           <InfoItem label="Lokasi" value={info.locations?.name ?? "-"} />
           <InfoItem label="Jenis Kelas" value={info.class_types?.name ?? "-"} />

@@ -1,7 +1,10 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -42,7 +45,11 @@ export default async function CashLedgerPage({
   if (sp.category) query = query.eq("category", sp.category);
   if (sp.direction) query = query.eq("direction", sp.direction);
 
-  const { data: entries, count } = await query.order("entry_date", { ascending: false }).range(from, to);
+  const {
+    data: entries,
+    count,
+    error,
+  } = await query.order("entry_date", { ascending: false }).range(from, to);
 
   return (
     <div className="flex flex-col gap-3">
@@ -50,12 +57,13 @@ export default async function CashLedgerPage({
         <h1 className="text-xl font-semibold">Buku Kas</h1>
         <div className="flex items-center gap-2">
           <Badge variant={Number(latestBalance) >= 0 ? "success" : "destructive"} className="text-xs">
-            Saldo: Rp {Number(latestBalance).toLocaleString("id-ID")}
+            Saldo: {formatCurrency(latestBalance)}
           </Badge>
           <AddAdjustmentDialog />
         </div>
       </div>
 
+      <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Transaksi</h2>
       <ListControls
         searchPlaceholder="Cari keterangan..."
@@ -92,25 +100,19 @@ export default async function CashLedgerPage({
         <TableBody>
           {(entries ?? []).map((e) => (
             <TableRow key={e.id}>
-              <TableCell>{new Date(e.entry_date).toLocaleString("id-ID")}</TableCell>
+              <TableCell>{formatDateTime(e.entry_date)}</TableCell>
               <TableCell>{CATEGORY_LABEL[e.category] ?? e.category}</TableCell>
               <TableCell>
                 <Badge variant={e.direction === "in" ? "success" : "secondary"}>
                   {e.direction === "in" ? "Masuk" : "Keluar"}
                 </Badge>
               </TableCell>
-              <TableCell>Rp {Number(e.amount).toLocaleString("id-ID")}</TableCell>
-              <TableCell>Rp {Number(e.running_balance).toLocaleString("id-ID")}</TableCell>
+              <TableCell>{formatCurrency(e.amount)}</TableCell>
+              <TableCell>{formatCurrency(e.running_balance)}</TableCell>
               <TableCell>{e.reason ?? "-"}</TableCell>
             </TableRow>
           ))}
-          {(entries ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Belum ada transaksi.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(entries ?? []).length === 0 ? <EmptyRow colSpan={6} message="Belum ada transaksi." /> : null}
         </TableBody>
       </Table>
     </div>

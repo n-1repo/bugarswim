@@ -79,6 +79,7 @@ export function ListControls({
         <div className="flex flex-wrap items-center gap-2">
           {searchPlaceholder ? (
             <Input
+              aria-label={searchPlaceholder}
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -88,6 +89,7 @@ export function ListControls({
           {filters.map((filter) => (
             <Select
               key={filter.key}
+              aria-label={filter.label}
               value={searchParams.get(filter.key) ?? ""}
               onChange={(e) => updateParams({ [filter.key]: e.target.value || null })}
               className="h-8 w-auto text-xs"
@@ -107,6 +109,7 @@ export function ListControls({
         <span>{totalItems === 0 ? "Tidak ada data" : `Menampilkan ${from}–${to} dari ${totalItems}`}</span>
         <div className="flex items-center gap-2">
           <Select
+            aria-label="Jumlah item per halaman"
             value={String(pageSize)}
             onChange={(e) => updateParams({ pageSize: e.target.value })}
             className="h-8 w-auto text-xs"

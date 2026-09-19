@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getSession, createSession } from "@/lib/auth/session";
+import { getSession, createSession, clearSession } from "@/lib/auth/session";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { hashPassword } from "@/lib/auth/password";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { changePasswordSchema } from "@/lib/validations/auth";
 import { roleHome } from "@/lib/auth/roles";
 
@@ -21,6 +21,7 @@ export async function changePassword(
   }
 
   const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
     newPassword: formData.get("newPassword"),
   });
   if (!parsed.success) {
@@ -28,6 +29,33 @@ export async function changePassword(
   }
 
   const supabase = createAdminSupabaseClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_active")
+    .eq("id", session.sub)
+    .maybeSingle();
+
+  if (!profile || !profile.is_active) {
+    await clearSession();
+    redirect("/login?deactivated=1");
+  }
+
+  const { data: credentials } = await supabase
+    .from("auth_credentials")
+    .select("password_hash")
+    .eq("profile_id", session.sub)
+    .maybeSingle();
+
+  if (!credentials) {
+    return { error: "Kata sandi saat ini salah" };
+  }
+
+  const currentValid = await verifyPassword(parsed.data.currentPassword, credentials.password_hash);
+  if (!currentValid) {
+    return { error: "Kata sandi saat ini salah" };
+  }
+
   const passwordHash = await hashPassword(parsed.data.newPassword);
 
   await supabase

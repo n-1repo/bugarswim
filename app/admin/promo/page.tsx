@@ -2,7 +2,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { deletePromoForm } from "@/lib/actions/promo";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { ActionSubmitButton } from "@/components/shared/action-submit-button";
+import { ActionForm } from "@/components/shared/action-form";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PromoForm } from "@/components/promo/promo-form";
@@ -27,13 +28,14 @@ export default async function PromoAdminPage({
     query = query.or(`active_from.gt.${nowIso},active_until.lt.${nowIso}`);
   }
 
-  const { data: promos, count } = await query.order("active_from", { ascending: false }).range(from, to);
+  const { data: promos, count, error } = await query.order("active_from", { ascending: false }).range(from, to);
 
   const now = new Date();
 
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Promo</h1>
+      <QueryErrorAlert error={error?.message} />
 
       <Card className="max-w-xl">
         <CardHeader>
@@ -75,17 +77,16 @@ export default async function PromoAdminPage({
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 <p className="text-sm text-muted-foreground">{p.body}</p>
-                <form action={deletePromoForm}>
-                  <input type="hidden" name="promoId" value={p.id} />
-                  <ActionSubmitButton
-                    variant="destructive"
-                    size="sm"
-                    confirmMessage="Hapus promo ini? Tindakan ini tidak bisa dibatalkan."
-                    successMessage="Promo dihapus"
-                  >
-                    Hapus
-                  </ActionSubmitButton>
-                </form>
+                <ActionForm
+                  action={deletePromoForm}
+                  fields={{ promoId: p.id }}
+                  confirmMessage="Hapus promo ini? Tindakan ini tidak bisa dibatalkan."
+                  successMessage="Promo dihapus"
+                  variant="destructive"
+                  size="sm"
+                >
+                  Hapus
+                </ActionForm>
               </CardContent>
             </Card>
           );

@@ -2,7 +2,10 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveCoaches } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
+import { EmptyRow } from "@/components/shared/empty-row";
+import { QueryErrorAlert } from "@/components/shared/query-error-alert";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -32,7 +35,7 @@ export default async function PayrollPage({
   if (sp.status) query = query.eq("status", sp.status);
   if (sp.coach) query = query.eq("coach_id", sp.coach);
 
-  const [{ data: runs, count }, activeCoaches, { data: allCoaches }] = await Promise.all([
+  const [{ data: runs, count, error }, activeCoaches, { data: allCoaches }] = await Promise.all([
     query.order("period_start", { ascending: false }).range(from, to),
     getActiveCoaches(),
     supabase.from("profiles").select("id, full_name").eq("role", "coach").order("full_name"),
@@ -45,6 +48,7 @@ export default async function PayrollPage({
         <AddPayrollDialog coaches={activeCoaches} />
       </div>
 
+      <QueryErrorAlert error={error?.message} />
       <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Gaji</h2>
       <ListControls
         searchPlaceholder="Cari nama pelatih..."
@@ -98,10 +102,10 @@ export default async function PayrollPage({
                 <TableCell>
                   {row.period_start} – {row.period_end}
                 </TableCell>
-                <TableCell>Rp {Number(row.base_salary).toLocaleString("id-ID")}</TableCell>
-                <TableCell>Rp {Number(row.bonus).toLocaleString("id-ID")}</TableCell>
-                <TableCell>Rp {Number(row.thr).toLocaleString("id-ID")}</TableCell>
-                <TableCell>Rp {Number(row.total_amount).toLocaleString("id-ID")}</TableCell>
+                <TableCell>{formatCurrency(row.base_salary)}</TableCell>
+                <TableCell>{formatCurrency(row.bonus)}</TableCell>
+                <TableCell>{formatCurrency(row.thr)}</TableCell>
+                <TableCell>{formatCurrency(row.total_amount)}</TableCell>
                 <TableCell>
                   <Badge variant={row.status === "posted" ? "success" : "secondary"}>
                     {row.status === "posted" ? "Terposting" : "Draf"}
@@ -110,13 +114,7 @@ export default async function PayrollPage({
               </TableRow>
             );
           })}
-          {(runs ?? []).length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
-                Belum ada data gaji.
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {(runs ?? []).length === 0 ? <EmptyRow colSpan={7} message="Belum ada data gaji." /> : null}
         </TableBody>
       </Table>
     </div>

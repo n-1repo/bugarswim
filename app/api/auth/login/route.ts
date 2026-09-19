@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { verifyPassword } from "@/lib/auth/password";
+import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { roleHome } from "@/lib/auth/roles";
 import { loginSchema } from "@/lib/validations/auth";
@@ -8,6 +8,8 @@ import { loginSchema } from "@/lib/validations/auth";
 const LOCKOUT_THRESHOLD = 5;
 const LOCKOUT_MINUTES = 15;
 const GENERIC_ERROR = "Email atau kata sandi salah";
+
+const dummyHashPromise = hashPassword("timing-safety-placeholder");
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -25,25 +27,22 @@ export async function POST(request: Request) {
     .eq("email", email)
     .maybeSingle();
 
-  if (!profile || !profile.is_active) {
-    return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
-  }
+  const { data: credentials } = profile
+    ? await supabase
+        .from("auth_credentials")
+        .select("password_hash, failed_login_count, locked_until")
+        .eq("profile_id", profile.id)
+        .maybeSingle()
+    : { data: null };
 
-  const { data: credentials } = await supabase
-    .from("auth_credentials")
-    .select("password_hash, failed_login_count, locked_until")
-    .eq("profile_id", profile.id)
-    .maybeSingle();
-
-  if (!credentials) {
+  if (!profile || !profile.is_active || !credentials) {
+    await verifyPassword(password, await dummyHashPromise);
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
   }
 
   if (credentials.locked_until && new Date(credentials.locked_until) > new Date()) {
-    return NextResponse.json(
-      { error: "Akun terkunci sementara karena terlalu banyak percobaan. Coba lagi nanti." },
-      { status: 423 }
-    );
+    await verifyPassword(password, await dummyHashPromise);
+    return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
   }
 
   const valid = await verifyPassword(password, credentials.password_hash);

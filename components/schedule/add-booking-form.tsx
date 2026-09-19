@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { addBooking } from "@/lib/actions/schedule";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Lookup } from "@/lib/data/lookups";
@@ -25,6 +26,7 @@ export function AddBookingForm({
         </Alert>
       ) : null}
       <div className="flex flex-1 flex-col gap-1.5">
+        <Label htmlFor="childId">Anak</Label>
         <Select id="childId" name="childId" required defaultValue="">
           <option value="" disabled>
             Pilih anak untuk didaftarkan
