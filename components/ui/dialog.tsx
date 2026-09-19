@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+
+const TRANSITION_MS = 180;
 
 export function Dialog({
   open,
@@ -17,28 +19,49 @@ export function Dialog({
   className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+
+    if (open) {
+      if (!dialog.open) dialog.showModal();
+      let raf2 = 0;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
+    }
+
+    setVisible(false);
+    const timeout = setTimeout(() => {
+      if (dialog.open) dialog.close();
+    }, TRANSITION_MS);
+    return () => clearTimeout(timeout);
   }, [open]);
 
   return (
     <dialog
       ref={ref}
       onClose={onClose}
-      onCancel={onClose}
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
       className={cn(
-        "w-[calc(100vw-2rem)] max-w-lg rounded-lg border border-border bg-background p-0 text-foreground shadow-lg backdrop:bg-black/50",
+        "fixed top-1/2 left-1/2 m-0 flex max-h-[90vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-background p-0 text-foreground shadow-xl transition-all duration-200 ease-out backdrop:transition-colors backdrop:duration-200",
+        visible ? "scale-100 opacity-100 backdrop:bg-black/50" : "scale-95 opacity-0 backdrop:bg-black/0",
         className
       )}
     >
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold">{title}</h2>
         <button
           type="button"
@@ -49,7 +72,7 @@ export function Dialog({
           ✕
         </button>
       </div>
-      <div className="max-h-[75vh] overflow-y-auto p-4">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
     </dialog>
   );
 }
