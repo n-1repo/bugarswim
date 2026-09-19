@@ -9,10 +9,10 @@ export interface ProgramPricing {
 }
 
 const PROGRAM_ORDER = [
-  "Privat Class",
-  "Privat Grup Class",
+  "Private Class",
+  "Private Grup Class",
   "Reguler Class",
-  "Privat Hydrotherapy",
+  "Private Hydrotherapy",
   "Hydrotherapy Grup",
 ];
 

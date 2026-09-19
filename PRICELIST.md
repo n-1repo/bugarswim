@@ -7,10 +7,10 @@ into `membership_packages` (10 rows: 5 class types × 1x/4x pertemuan tiers).
 
 | Class | Members : Coach | Duration | 1x pertemuan | 4x pertemuan |
 |---|---|---|---|---|
-| Privat Class | 1:1 | 60 menit | Rp110.000 | Rp420.000 |
-| Privat Grup Class | 2:1 | 75 menit | Rp160.000 | Rp600.000 |
+| Private Class | 1:1 | 60 menit | Rp110.000 | Rp420.000 |
+| Private Grup Class | 2:1 | 75 menit | Rp160.000 | Rp600.000 |
 | Reguler Class | 3-5:1 | 90 menit | Rp50.000 | Rp180.000 |
-| Privat Hydrotherapy | 1:1 | 60 menit | Rp110.000 | Rp420.000 |
+| Private Hydrotherapy | 1:1 | 60 menit | Rp110.000 | Rp420.000 |
 | Hydrotherapy Grup | 2:1 | 75 menit | Rp160.000 | Rp600.000 |
 
 ## Programs
