@@ -5,15 +5,8 @@ import { createPackage } from "@/lib/actions/billing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
-
-const CYCLE_LABEL: Record<string, string> = {
-  monthly: "Bulanan",
-  quarterly: "Triwulan",
-  yearly: "Tahunan",
-};
 
 export function PackageForm() {
   const [state, formAction, pending] = useActionState(createPackage, {});
@@ -36,15 +29,13 @@ export function PackageForm() {
           <Input id="price" name="price" type="number" min={0} step={1000} required />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="billingCycle">Siklus Tagihan</Label>
-          <Select id="billingCycle" name="billingCycle" defaultValue="monthly">
-            {Object.entries(CYCLE_LABEL).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
+          <Label htmlFor="sessionsIncluded">Jumlah Sesi</Label>
+          <Input id="sessionsIncluded" name="sessionsIncluded" type="number" min={1} step={1} placeholder="mis. 1 atau 4" />
         </div>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="validityWeeks">Masa Berlaku (minggu)</Label>
+        <Input id="validityWeeks" name="validityWeeks" type="number" min={1} step={1} defaultValue={6} />
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="description">Deskripsi</Label>

@@ -23,14 +23,65 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function ParentBillingPage() {
   const supabase = await createServerSupabaseClient();
-  const { data: invoices } = await supabase
-    .from("invoices")
-    .select("id, amount, status, due_date, period_start, period_end, children(full_name)")
-    .order("due_date", { ascending: false });
+  const [{ data: invoices }, { data: activeSubscriptions }, { data: usage }] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("id, amount, status, due_date, period_start, period_end, children(full_name)")
+      .order("due_date", { ascending: false }),
+    supabase
+      .from("subscriptions")
+      .select("id, children(full_name), membership_packages(name)")
+      .eq("status", "active"),
+    supabase.from("subscription_usage").select("subscription_id, sessions_remaining, end_date, is_expired"),
+  ]);
+
+  const usageBySubscription = new Map((usage ?? []).map((u) => [u.subscription_id, u]));
+  const activePacks = (activeSubscriptions ?? []).map((s) => ({
+    ...(s as unknown as {
+      id: string;
+      children: { full_name: string } | null;
+      membership_packages: { name: string } | null;
+    }),
+    usage: usageBySubscription.get(s.id),
+  }));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Tagihan</h1>
+
+      {activePacks.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-muted-foreground">Paket Aktif</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Anak</TableHead>
+                <TableHead>Paket</TableHead>
+                <TableHead>Sisa Sesi</TableHead>
+                <TableHead>Berlaku s/d</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {activePacks.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.children?.full_name ?? "-"}</TableCell>
+                  <TableCell>{row.membership_packages?.name ?? "-"}</TableCell>
+                  <TableCell>{row.usage?.sessions_remaining ?? "-"}</TableCell>
+                  <TableCell>
+                    {row.usage?.end_date ?? "-"}
+                    {row.usage?.is_expired ? (
+                      <Badge variant="destructive" className="ml-2">
+                        Kedaluwarsa
+                      </Badge>
+                    ) : null}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
+
       <Table>
         <TableHeader>
           <TableRow>

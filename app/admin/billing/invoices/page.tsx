@@ -1,7 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { markInvoicePaidForm, voidInvoiceForm } from "@/lib/actions/billing";
 import { ActionSubmitButton } from "@/components/shared/action-submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -11,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GenerateInvoicesForm } from "@/components/billing/generate-invoices-form";
 
 const STATUS_VARIANT: Record<string, "success" | "secondary" | "destructive"> = {
   paid: "success",
@@ -106,15 +104,6 @@ export default async function InvoicesPage() {
           ) : null}
         </TableBody>
       </Table>
-
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Buat Tagihan Periode Berjalan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GenerateInvoicesForm />
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -23,14 +23,19 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function SubscriptionsPage() {
   const supabase = await createServerSupabaseClient();
-  const [{ data: subscriptions }, childOptions, packages] = await Promise.all([
+  const [{ data: subscriptions }, { data: usage }, childOptions, packages] = await Promise.all([
     supabase
       .from("subscriptions")
       .select("id, status, start_date, end_date, children(full_name), membership_packages(name)")
       .order("start_date", { ascending: false }),
+    supabase.from("subscription_usage").select("subscription_id, sessions_remaining, is_expired"),
     getActiveChildren(),
     getActivePackages(),
   ]);
+
+  const usageBySubscription = new Map(
+    (usage ?? []).map((u) => [u.subscription_id, u])
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,6 +47,8 @@ export default async function SubscriptionsPage() {
             <TableHead>Anak</TableHead>
             <TableHead>Paket</TableHead>
             <TableHead>Mulai</TableHead>
+            <TableHead>Sisa Sesi</TableHead>
+            <TableHead>Berlaku s/d</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Aksi</TableHead>
           </TableRow>
@@ -52,14 +59,25 @@ export default async function SubscriptionsPage() {
               id: string;
               status: string;
               start_date: string;
+              end_date: string | null;
               children: { full_name: string } | null;
               membership_packages: { name: string } | null;
             };
+            const usageRow = usageBySubscription.get(row.id);
             return (
               <TableRow key={row.id}>
                 <TableCell>{row.children?.full_name ?? "-"}</TableCell>
                 <TableCell>{row.membership_packages?.name ?? "-"}</TableCell>
                 <TableCell>{row.start_date}</TableCell>
+                <TableCell>{usageRow?.sessions_remaining ?? "-"}</TableCell>
+                <TableCell>
+                  {row.end_date ?? "-"}
+                  {usageRow?.is_expired ? (
+                    <Badge variant="destructive" className="ml-2">
+                      Kedaluwarsa
+                    </Badge>
+                  ) : null}
+                </TableCell>
                 <TableCell>
                   <Badge variant={row.status === "active" ? "success" : "secondary"}>
                     {STATUS_LABEL[row.status] ?? row.status}
@@ -85,7 +103,7 @@ export default async function SubscriptionsPage() {
           })}
           {(subscriptions ?? []).length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 Belum ada langganan.
               </TableCell>
             </TableRow>

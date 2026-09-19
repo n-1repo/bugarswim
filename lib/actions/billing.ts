@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireActionRole } from "@/lib/auth/guard";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { packageSchema, subscriptionSchema, generateInvoicesSchema } from "@/lib/validations/billing";
+import { packageSchema, subscriptionSchema } from "@/lib/validations/billing";
 import { type ActionState } from "./types";
 
 export async function createPackage(
@@ -15,7 +14,8 @@ export async function createPackage(
   const parsed = packageSchema.safeParse({
     name: formData.get("name"),
     price: formData.get("price"),
-    billingCycle: formData.get("billingCycle"),
+    sessionsIncluded: formData.get("sessionsIncluded") || undefined,
+    validityWeeks: formData.get("validityWeeks") || undefined,
     description: formData.get("description") || undefined,
   });
   if (!parsed.success) {
@@ -26,7 +26,8 @@ export async function createPackage(
   const { error } = await supabase.from("membership_packages").insert({
     name: parsed.data.name,
     price: parsed.data.price,
-    billing_cycle: parsed.data.billingCycle,
+    sessions_included: parsed.data.sessionsIncluded ?? null,
+    validity_weeks: parsed.data.validityWeeks,
     description: parsed.data.description ?? null,
   });
   if (error) return { ok: false, error: "Gagal menyimpan paket" };
@@ -50,10 +51,22 @@ export async function createSubscription(
   }
 
   const supabase = await createServerSupabaseClient();
+  const { data: pkg, error: pkgError } = await supabase
+    .from("membership_packages")
+    .select("validity_weeks")
+    .eq("id", parsed.data.packageId)
+    .single();
+  if (pkgError || !pkg) return { ok: false, error: "Paket tidak ditemukan" };
+
+  const startDate = new Date(parsed.data.startDate);
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + pkg.validity_weeks * 7);
+
   const { error } = await supabase.from("subscriptions").insert({
     child_id: parsed.data.childId,
     package_id: parsed.data.packageId,
     start_date: parsed.data.startDate,
+    end_date: endDate.toISOString().slice(0, 10),
   });
 
   if (error) {
@@ -76,33 +89,6 @@ export async function cancelSubscriptionForm(formData: FormData): Promise<void> 
     .update({ status: "cancelled", end_date: new Date().toISOString().slice(0, 10) })
     .eq("id", subscriptionId);
   revalidatePath("/admin/billing/subscriptions");
-}
-
-export async function generateInvoices(
-  _prevState: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  await requireActionRole("admin");
-  const parsed = generateInvoicesSchema.safeParse({
-    periodStart: formData.get("periodStart"),
-    periodEnd: formData.get("periodEnd"),
-    dueDate: formData.get("dueDate"),
-  });
-  if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
-  }
-
-  const supabase = createAdminSupabaseClient();
-  const { data, error } = await supabase.rpc("generate_invoices_for_period", {
-    p_period_start: parsed.data.periodStart,
-    p_period_end: parsed.data.periodEnd,
-    p_due_date: parsed.data.dueDate,
-  });
-
-  if (error) return { ok: false, error: "Gagal membuat tagihan" };
-
-  revalidatePath("/admin/billing/invoices");
-  return { ok: true, message: `${(data as unknown[])?.length ?? 0} tagihan baru dibuat` };
 }
 
 export async function markInvoicePaidForm(formData: FormData): Promise<void> {

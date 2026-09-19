@@ -10,17 +10,11 @@ import {
 } from "@/components/ui/table";
 import { PackageForm } from "@/components/billing/package-form";
 
-const CYCLE_LABEL: Record<string, string> = {
-  monthly: "Bulanan",
-  quarterly: "Triwulan",
-  yearly: "Tahunan",
-};
-
 export default async function PackagesPage() {
   const supabase = await createServerSupabaseClient();
   const { data: packages } = await supabase
     .from("membership_packages")
-    .select("id, name, price, billing_cycle, is_active")
+    .select("id, name, price, sessions_included, validity_weeks, is_active")
     .order("name");
 
   return (
@@ -32,7 +26,8 @@ export default async function PackagesPage() {
           <TableRow>
             <TableHead>Nama</TableHead>
             <TableHead>Harga</TableHead>
-            <TableHead>Siklus</TableHead>
+            <TableHead>Sesi</TableHead>
+            <TableHead>Masa Berlaku</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -40,12 +35,13 @@ export default async function PackagesPage() {
             <TableRow key={p.id}>
               <TableCell>{p.name}</TableCell>
               <TableCell>Rp {Number(p.price).toLocaleString("id-ID")}</TableCell>
-              <TableCell>{CYCLE_LABEL[p.billing_cycle] ?? p.billing_cycle}</TableCell>
+              <TableCell>{p.sessions_included ?? "-"}</TableCell>
+              <TableCell>{p.validity_weeks} minggu</TableCell>
             </TableRow>
           ))}
           {(packages ?? []).length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className="text-center text-muted-foreground">
+              <TableCell colSpan={4} className="text-center text-muted-foreground">
                 Belum ada paket.
               </TableCell>
             </TableRow>

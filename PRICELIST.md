@@ -33,9 +33,8 @@ into `membership_packages` (10 rows: 5 class types × 1x/4x pertemuan tiers).
 
 ## Schema note
 
-`membership_packages.billing_cycle` only allows `monthly`/`quarterly`/`yearly`
-— none of these actually fit a "4x pertemuan, berlaku 6 minggu" session pack.
-Stored as `monthly` as the closest available value; the real validity term is
-in each row's `description`. Same underlying mismatch as the session-based
-attendance data (see `session_payments` in the migrations) — this business
-sells per-session/per-pack, not calendar-cycle subscriptions.
+`membership_packages` now models this natively: `sessions_included` (1 or 4)
+and `validity_weeks` (6) replace the old calendar `billing_cycle`. Buying a
+pack (`subscriptions`) auto-creates one invoice for the full price, due
+immediately (paid upfront, per the terms above) — see
+`supabase/migrations/20250101000012_session_packages.sql`.

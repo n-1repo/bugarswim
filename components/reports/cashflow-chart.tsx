@@ -38,7 +38,7 @@ export function CashflowChart({ data }: { data: CashFlowPoint[] }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" fontSize={12} />
           <YAxis fontSize={12} tickFormatter={(value: number) => compactRupiah.format(value)} width={80} />
-          <Tooltip formatter={(value: number) => fullRupiah.format(value)} />
+          <Tooltip formatter={(value) => fullRupiah.format(Number(value))} />
           <Line type="monotone" dataKey="cash_in" stroke="var(--color-success)" name="Masuk" strokeWidth={2} />
           <Line type="monotone" dataKey="cash_out" stroke="var(--color-destructive)" name="Keluar" strokeWidth={2} />
           <Line type="monotone" dataKey="net" stroke="var(--color-primary)" name="Bersih" strokeWidth={2} />

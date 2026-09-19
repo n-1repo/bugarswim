@@ -83,7 +83,16 @@ export async function addBooking(
   }
 
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.from("bookings").insert({ child_id: childId, class_id: classId });
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("id")
+    .eq("child_id", childId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("bookings")
+    .insert({ child_id: childId, class_id: classId, subscription_id: subscription?.id ?? null });
 
   if (error) {
     if (error.code === "23505") {
