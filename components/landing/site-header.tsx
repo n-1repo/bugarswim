@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Waves } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { cn } from "@/lib/utils";
 import { CLUB_NAME } from "@/lib/config";
 
@@ -38,12 +39,15 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          href="/login"
-          className={cn(buttonVariants({ size: "sm" }), "bg-gold text-gold-foreground hover:opacity-90")}
-        >
-          Masuk
-        </Link>
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+          <Link
+            href="/login"
+            className={cn(buttonVariants({ size: "sm" }), "bg-gold text-gold-foreground hover:opacity-90")}
+          >
+            Masuk
+          </Link>
+        </div>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
 import { Waves } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 import { NavLink } from "./nav-link";
+import { ThemeToggle } from "./theme-toggle";
 import { CLUB_NAME } from "@/lib/config";
 
 export interface NavItem {
@@ -31,8 +32,9 @@ export function AppShell({
             {roleLabel}
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <span className="hidden text-sm text-muted-foreground sm:inline">{fullName}</span>
+          <ThemeToggle />
           <LogoutButton />
         </div>
       </header>

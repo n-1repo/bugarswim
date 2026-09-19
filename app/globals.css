@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f3f8fc;
   --foreground: #0b2a3d;
@@ -33,6 +35,30 @@
 
   --gold: #f5b400;
   --gold-foreground: #1a2744;
+}
+
+.dark {
+  --background: #071726;
+  --foreground: #eaf3fa;
+  --card: #0f2a3f;
+  --card-foreground: #eaf3fa;
+  --primary: #3ba0e0;
+  --primary-foreground: #052436;
+  --secondary: #163a52;
+  --secondary-foreground: #8fd0f5;
+  --muted: #142f44;
+  --muted-foreground: #93b4c8;
+  --accent: #163a52;
+  --accent-foreground: #8fd0f5;
+  --destructive: #f87171;
+  --destructive-foreground: #3d0a0a;
+  --success: #4ade80;
+  --success-foreground: #052e16;
+  --warning: #fbbf24;
+  --warning-foreground: #3f2500;
+  --border: #1f4258;
+  --input: #1f4258;
+  --ring: #3ba0e0;
 }
 
 @theme inline {
@@ -81,6 +107,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
 }
 
 h1,
