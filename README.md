@@ -1,103 +1,85 @@
-# Bugarswim
+# Bugar Swim
 
-Swimming club management app: membership, scheduling, attendance, billing,
-cash ledger, coach payroll, and promo announcements, for admin/coach/parent
-roles.
+Web app for managing a swimming & hydrotherapy club: membership, class
+scheduling, attendance, billing, cash ledger, coach payroll, and promo
+announcements — plus a public landing page for prospective members.
 
-Stack: Next.js (App Router) + TypeScript, Supabase Postgres with Row Level
-Security, Tailwind CSS, Vercel deployment.
+**Live:** https://bugarswim.vercel.app
 
-## Auth model
+Stack: Next.js (App Router) + TypeScript, Supabase (Postgres + Row Level
+Security), Tailwind CSS, deployed on Vercel.
 
-Authentication is **custom** (bcrypt password hashes in our own
-`auth_credentials` table), not Supabase Auth. On login, the server verifies
-the password and mints its own JWT signed with the Supabase project's JWT
-secret, carrying `sub` (user id) and `app_role` (admin/coach/parent). That
-JWT is stored in an httpOnly cookie and attached as the `Authorization`
-header on every Supabase request, so Postgres RLS (`auth.uid()`,
-`auth.jwt()`) enforces access exactly as it would with Supabase Auth.
+## Portals
 
-**Before running migrations against a real project**, check Project
-Settings → API → JWT Keys. This setup requires the legacy shared **HS256
-JWT secret** to be available (`SUPABASE_JWT_SECRET`). If a project only has
-asymmetric JWT signing keys enabled and no legacy secret, self-minted HS256
-tokens won't validate against PostgREST — in that case use Supabase's
-Third-Party Auth (JWKS) support instead of `lib/auth/jwt.ts` as written.
+- **Public landing page** (`/`) — programs, pricing, and benefits pulled
+  live from the database, with a CTA into the login page.
+- **Admin** — members, coaches, schedule/roster, packages, subscriptions,
+  invoices, cash ledger, coach payroll, promo, locations/class types, and a
+  reports dashboard (revenue, cash flow, outstanding invoices).
+- **Coach** — own class schedule and attendance marking.
+- **Parent** — children's schedule/attendance, invoices, and active promos.
 
-The service-role key is used only in a few narrow, reviewed places (never in
-client-reachable code): login lookup and creating a parent/coach account
-together with its credentials row. Every other read/write goes through the
-per-request JWT-bound client, so RLS is the real security boundary. Every
-service-role action also re-checks the caller's `is_active` status live
-(`requireActionRole` in `lib/auth/guard.ts`) rather than trusting the
-session JWT alone, so a deactivated account loses access immediately
-instead of waiting out the JWT's 7-day lifetime.
+Every account is created by an admin (no public sign-up); each role only
+sees what it's allowed to via Postgres RLS.
 
-Deactivating an account (`profiles.is_active = false`) cuts off all DB
-access immediately, even though its JWT technically hasn't expired — this is
-enforced inside the `is_admin()` / `is_coach()` / `is_parent()` SQL helper
-functions, not just in individual policies.
+## Requirements
+
+- Node.js 20+
+- A Supabase project (Postgres + Row Level Security)
 
 ## Local setup
 
-1. Create a Supabase project.
-2. Enable extensions `pgcrypto`, `btree_gist`, `pg_trgm` (the first migration
-   does this automatically if the project allows it).
-3. Apply the SQL migrations in `supabase/migrations/` in order (via the
-   Supabase CLI, `supabase db push`, or pasting them into the SQL editor in
-   order).
-4. Copy `.env.example` to `.env.local` and fill in:
+1. Create a Supabase project and enable the `pgcrypto`, `btree_gist`,
+   `pg_trgm` extensions (the first migration does this automatically if the
+   project allows it).
+2. Apply the SQL migrations in `supabase/migrations/` in order (Supabase
+   CLI, `supabase db push`, or paste them into the SQL editor in order).
+3. Copy `.env.example` to `.env.local` and fill in:
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Project
      Settings → API.
-   - `SUPABASE_SERVICE_ROLE_KEY` — Project Settings → API (server-only,
-     never expose to the client).
+   - `SUPABASE_SERVICE_ROLE_KEY` — Project Settings → API (server-only).
    - `SUPABASE_JWT_SECRET` — Project Settings → API → JWT Keys (legacy
-     secret; see the note above).
-   - `NEXT_PUBLIC_CLUB_NAME` — optional; the name shown on the login page,
-     sidebar header, and browser tab. Defaults to "Bugarswim" if unset.
-5. Seed the first admin account:
+     HS256 shared secret; required since auth is custom, see below).
+   - `NEXT_PUBLIC_CLUB_NAME` — optional display name (defaults to
+     "Bugarswim").
+4. Seed the first admin account:
    ```bash
    SEED_ADMIN_EMAIL=admin@example.com SEED_ADMIN_PASSWORD=ChangeMe123 npm run seed:admin
    ```
-6. `npm run dev` and log in at `/login`.
+5. `npm run dev` and log in at `/login`.
 
-## Deploying to Vercel
+## Auth
 
-Create a Vercel project linked to this repo, set the same environment
-variables there, and deploy. Billing is not on a cron: one invoice is
-created automatically per subscription purchase (see `supabase/migrations/
-20250101000012_session_packages.sql`), not generated on a schedule.
+Authentication is custom (bcrypt + a self-signed JWT), not Supabase Auth —
+the JWT carries the user's role and is verified by Postgres RLS on every
+request, so access control lives in the database, not just the app.
 
-## Reusing this codebase for a new client
+## Current status & scope
 
-This app is currently **single-tenant**: one deployment and one Supabase
-project serves one club's data, with no `club_id`/organization concept
-anywhere in the schema. To onboard a new client today, deploy a separate
-instance from this same codebase rather than adding them to an existing
-one:
+Single-tenant: one deployment and one Supabase project per club. Reusing
+this codebase for a different club means a separate deployment (its own
+Supabase project, env vars, and brand colors in `app/globals.css`), not
+adding them to this one.
 
-1. Create a new Supabase project for the client and repeat the **Local
-   setup** steps above against it (migrations, env vars, seed admin).
-2. Set `NEXT_PUBLIC_CLUB_NAME` to the new client's name.
-3. Re-theme `app/globals.css` — the color tokens in `:root` (`--primary`,
-   `--sidebar`, etc.) and the fonts in `app/layout.tsx` are the club's
-   brand; edit them for the new client before deploying.
-4. Deploy to a new Vercel project pointed at the new Supabase project.
+Not yet built: self-service password reset, automated email/SMS/WhatsApp
+notifications, online payment gateway integration (payments are recorded
+manually), parent self-service booking, and data export (CSV/PDF).
 
-Each client gets their own isolated database and deployment from the same
-source — no cross-client data exposure risk, but also no shared upgrades:
-a fix or feature has to be redeployed to each client's instance
-separately. If/when there's enough demand to justify it, the schema would
-need a real multi-tenant pass (`club_id` on every table, RLS scoped by
-club) to run many clients off one shared deployment instead.
+## Major changelog
 
-## Notes / out of scope
-
-- Swim competition (lomba renang) tracking is intentionally not built, but
-  nothing in the schema (e.g. `class_types`) assumes it can't be added
-  later.
-- WhatsApp and payment-gateway integrations are left as TODOs — invoices are
-  marked paid manually by an admin for now.
-- No self-registration: admin creates parent and coach accounts (with a
-  temporary password that must be changed on first login) since letting
-  parents register themselves would undermine the duplicate-child check.
+- **Public landing page** — programs, pricing, and benefits sourced from
+  the live database, with brand-accurate styling.
+- **Pricelist alignment** — class types and packages reconciled with the
+  club's actual pricelist (naming, pricing, session counts, validity).
+- **Design system overhaul** — the whole app (admin/coach/parent portals,
+  login) reskinned to match the landing page's navy & gold Bugar Swim
+  identity, on shared design tokens.
+- **Modal-based management** — creating promos/subscriptions and managing
+  members, coaches, and class rosters now happens in modals instead of
+  dedicated pages.
+- **Interaction polish** — hover/active/focus states, smooth-scrolling CTA
+  navigation, and subtle motion across buttons and navigation.
+- **Landing ↔ login flow** — clear navigation between the public site and
+  the login page in both directions.
+- **Light/dark mode** — app-wide theme toggle, persisted per user, with a
+  system-preference default.
