@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveChildren, getActivePackages } from "@/lib/data/lookups";
 import { cancelSubscriptionForm } from "@/lib/actions/billing";
+import { parsePagination } from "@/lib/list-params";
+import { ListControls } from "@/components/shared/list-controls";
 import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,26 +23,57 @@ const STATUS_LABEL: Record<string, string> = {
   expired: "Kedaluwarsa",
 };
 
-export default async function SubscriptionsPage() {
+export default async function SubscriptionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; packageId?: string; page?: string; pageSize?: string }>;
+}) {
+  const sp = await searchParams;
+  const { page, pageSize, from, to } = parsePagination(sp);
   const supabase = await createServerSupabaseClient();
-  const [{ data: subscriptions }, { data: usage }, childOptions, packages] = await Promise.all([
-    supabase
-      .from("subscriptions")
-      .select("id, status, start_date, end_date, children(full_name), membership_packages(name)")
-      .order("start_date", { ascending: false }),
-    supabase.from("subscription_usage").select("subscription_id, sessions_remaining, is_expired"),
-    getActiveChildren(),
-    getActivePackages(),
-  ]);
 
-  const usageBySubscription = new Map(
-    (usage ?? []).map((u) => [u.subscription_id, u])
-  );
+  let query = supabase
+    .from("subscriptions")
+    .select("id, status, start_date, end_date, children!inner(full_name), membership_packages(name)", {
+      count: "exact",
+    });
+  if (sp.q) query = query.ilike("children.full_name", `%${sp.q}%`);
+  if (sp.status) query = query.eq("status", sp.status);
+  if (sp.packageId) query = query.eq("package_id", sp.packageId);
+
+  const [{ data: subscriptions, count }, { data: usage }, childOptions, activePackages, { data: allPackages }] =
+    await Promise.all([
+      query.order("start_date", { ascending: false }).range(from, to),
+      supabase.from("subscription_usage").select("subscription_id, sessions_remaining, is_expired"),
+      getActiveChildren(),
+      getActivePackages(),
+      supabase.from("membership_packages").select("id, name").order("name"),
+    ]);
+
+  const usageBySubscription = new Map((usage ?? []).map((u) => [u.subscription_id, u]));
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Langganan</h1>
       <h2 className="text-sm font-semibold text-muted-foreground">Daftar Langganan</h2>
+      <ListControls
+        searchPlaceholder="Cari nama anak..."
+        filters={[
+          {
+            key: "status",
+            label: "Semua Status",
+            options: Object.entries(STATUS_LABEL).map(([value, label]) => ({ value, label })),
+          },
+          {
+            key: "packageId",
+            label: "Semua Paket",
+            options: (allPackages ?? []).map((p) => ({ value: p.id, label: p.name })),
+          },
+        ]}
+        totalItems={count ?? 0}
+        page={page}
+        pageSize={pageSize}
+      />
       <Table>
         <TableHeader>
           <TableRow>
@@ -115,7 +148,7 @@ export default async function SubscriptionsPage() {
           <CardTitle>Tambah Langganan</CardTitle>
         </CardHeader>
         <CardContent>
-          <SubscriptionForm childOptions={childOptions} packages={packages} />
+          <SubscriptionForm childOptions={childOptions} packages={activePackages} />
         </CardContent>
       </Card>
     </div>

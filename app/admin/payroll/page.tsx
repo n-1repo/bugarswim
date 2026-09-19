@@ -1,5 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveCoaches } from "@/lib/data/lookups";
+import { parsePagination } from "@/lib/list-params";
+import { ListControls } from "@/components/shared/list-controls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,14 +14,29 @@ import {
 } from "@/components/ui/table";
 import { PayrollRunForm } from "@/components/payroll/payroll-run-form";
 
-export default async function PayrollPage() {
+export default async function PayrollPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; coach?: string; page?: string; pageSize?: string }>;
+}) {
+  const sp = await searchParams;
+  const { page, pageSize, from, to } = parsePagination(sp);
   const supabase = await createServerSupabaseClient();
-  const [{ data: runs }, coaches] = await Promise.all([
-    supabase
-      .from("payroll_runs")
-      .select("id, period_start, period_end, base_salary, bonus, thr, total_amount, status, profiles(full_name)")
-      .order("period_start", { ascending: false }),
+
+  let query = supabase
+    .from("payroll_runs")
+    .select(
+      "id, period_start, period_end, base_salary, bonus, thr, total_amount, status, profiles!inner(full_name)",
+      { count: "exact" }
+    );
+  if (sp.q) query = query.ilike("profiles.full_name", `%${sp.q}%`);
+  if (sp.status) query = query.eq("status", sp.status);
+  if (sp.coach) query = query.eq("coach_id", sp.coach);
+
+  const [{ data: runs, count }, activeCoaches, { data: allCoaches }] = await Promise.all([
+    query.order("period_start", { ascending: false }).range(from, to),
     getActiveCoaches(),
+    supabase.from("profiles").select("id, full_name").eq("role", "coach").order("full_name"),
   ]);
 
   return (
@@ -27,6 +44,27 @@ export default async function PayrollPage() {
       <h1 className="text-2xl font-semibold">Gaji Pelatih</h1>
 
       <h2 className="text-sm font-semibold text-muted-foreground">Riwayat Gaji</h2>
+      <ListControls
+        searchPlaceholder="Cari nama pelatih..."
+        filters={[
+          {
+            key: "status",
+            label: "Semua Status",
+            options: [
+              { value: "draft", label: "Draf" },
+              { value: "posted", label: "Terposting" },
+            ],
+          },
+          {
+            key: "coach",
+            label: "Semua Pelatih",
+            options: (allCoaches ?? []).map((c) => ({ value: c.id, label: c.full_name })),
+          },
+        ]}
+        totalItems={count ?? 0}
+        page={page}
+        pageSize={pageSize}
+      />
       <Table>
         <TableHeader>
           <TableRow>
@@ -85,7 +123,7 @@ export default async function PayrollPage() {
           <CardTitle>Buat Gaji Baru</CardTitle>
         </CardHeader>
         <CardContent>
-          <PayrollRunForm coaches={coaches} />
+          <PayrollRunForm coaches={activeCoaches} />
         </CardContent>
       </Card>
     </div>

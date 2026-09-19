@@ -1,16 +1,33 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { deletePromoForm } from "@/lib/actions/promo";
+import { parsePagination } from "@/lib/list-params";
+import { ListControls } from "@/components/shared/list-controls";
 import { ActionSubmitButton } from "@/components/shared/action-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PromoForm } from "@/components/promo/promo-form";
 
-export default async function PromoAdminPage() {
+export default async function PromoAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; page?: string; pageSize?: string }>;
+}) {
+  const sp = await searchParams;
+  const { page, pageSize, from, to } = parsePagination(sp);
   const supabase = await createServerSupabaseClient();
-  const { data: promos } = await supabase
+  const nowIso = new Date().toISOString();
+
+  let query = supabase
     .from("promo")
-    .select("id, title, body, image_url, active_from, active_until")
-    .order("active_from", { ascending: false });
+    .select("id, title, body, image_url, active_from, active_until", { count: "exact" });
+  if (sp.q) query = query.or(`title.ilike.%${sp.q}%,body.ilike.%${sp.q}%`);
+  if (sp.status === "active") {
+    query = query.lte("active_from", nowIso).or(`active_until.is.null,active_until.gte.${nowIso}`);
+  } else if (sp.status === "inactive") {
+    query = query.or(`active_from.gt.${nowIso},active_until.lt.${nowIso}`);
+  }
+
+  const { data: promos, count } = await query.order("active_from", { ascending: false }).range(from, to);
 
   const now = new Date();
 
@@ -28,6 +45,22 @@ export default async function PromoAdminPage() {
       </Card>
 
       <h2 className="text-sm font-semibold text-muted-foreground">Semua Promo</h2>
+      <ListControls
+        searchPlaceholder="Cari judul atau isi..."
+        filters={[
+          {
+            key: "status",
+            label: "Semua Status",
+            options: [
+              { value: "active", label: "Aktif" },
+              { value: "inactive", label: "Tidak Aktif" },
+            ],
+          },
+        ]}
+        totalItems={count ?? 0}
+        page={page}
+        pageSize={pageSize}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         {(promos ?? []).map((p) => {
           const isActive =

@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getActiveCoaches, getClassTypes, getLocations } from "@/lib/data/lookups";
+import { parsePagination } from "@/lib/list-params";
+import { ListControls } from "@/components/shared/list-controls";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
@@ -21,14 +24,37 @@ interface ClassRow {
   bookings: { count: number }[];
 }
 
-export default async function SchedulePage() {
+export default async function SchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    coach?: string;
+    location?: string;
+    classType?: string;
+    page?: string;
+    pageSize?: string;
+  }>;
+}) {
+  const sp = await searchParams;
+  const { page, pageSize, from, to } = parsePagination(sp);
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+
+  let query = supabase
     .from("classes")
     .select(
-      "id, start_time, end_time, capacity, profiles(full_name), locations(name), class_types(name), bookings(count)"
-    )
-    .order("start_time");
+      "id, start_time, end_time, capacity, profiles(full_name), locations(name), class_types(name), bookings(count)",
+      { count: "exact" }
+    );
+  if (sp.coach) query = query.eq("instructor_id", sp.coach);
+  if (sp.location) query = query.eq("location_id", sp.location);
+  if (sp.classType) query = query.eq("class_type_id", sp.classType);
+
+  const [{ data, count }, coaches, locations, classTypes] = await Promise.all([
+    query.order("start_time").range(from, to),
+    getActiveCoaches(),
+    getLocations(),
+    getClassTypes(),
+  ]);
 
   const classes = (data ?? []) as unknown as ClassRow[];
 
@@ -40,6 +66,28 @@ export default async function SchedulePage() {
           Tambah Kelas
         </Link>
       </div>
+      <ListControls
+        filters={[
+          {
+            key: "coach",
+            label: "Semua Pelatih",
+            options: coaches.map((c) => ({ value: c.id, label: c.name })),
+          },
+          {
+            key: "location",
+            label: "Semua Lokasi",
+            options: locations.map((l) => ({ value: l.id, label: l.name })),
+          },
+          {
+            key: "classType",
+            label: "Semua Jenis",
+            options: classTypes.map((c) => ({ value: c.id, label: c.name })),
+          },
+        ]}
+        totalItems={count ?? 0}
+        page={page}
+        pageSize={pageSize}
+      />
       <Table>
         <TableHeader>
           <TableRow>

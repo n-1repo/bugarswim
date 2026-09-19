@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getLocations } from "@/lib/data/lookups";
+import { parsePagination } from "@/lib/list-params";
+import { ListControls } from "@/components/shared/list-controls";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,12 +34,26 @@ function calculateAge(dateOfBirth: string): number {
   return age;
 }
 
-export default async function MembersPage() {
+export default async function MembersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; location?: string; page?: string; pageSize?: string }>;
+}) {
+  const sp = await searchParams;
+  const { page, pageSize, from, to } = parsePagination(sp);
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+
+  let query = supabase
     .from("children")
-    .select("id, full_name, date_of_birth, is_active, profiles(full_name), locations(name)")
-    .order("full_name");
+    .select("id, full_name, date_of_birth, is_active, profiles(full_name), locations(name)", { count: "exact" });
+  if (sp.q) query = query.ilike("full_name", `%${sp.q}%`);
+  if (sp.status) query = query.eq("is_active", sp.status === "active");
+  if (sp.location) query = query.eq("preferred_location_id", sp.location);
+
+  const [{ data, count }, locations] = await Promise.all([
+    query.order("full_name").range(from, to),
+    getLocations(),
+  ]);
 
   const children = (data ?? []) as unknown as ChildRow[];
 
@@ -48,6 +65,27 @@ export default async function MembersPage() {
           Tambah Anggota
         </Link>
       </div>
+      <ListControls
+        searchPlaceholder="Cari nama anak..."
+        filters={[
+          {
+            key: "status",
+            label: "Semua Status",
+            options: [
+              { value: "active", label: "Aktif" },
+              { value: "inactive", label: "Nonaktif" },
+            ],
+          },
+          {
+            key: "location",
+            label: "Semua Lokasi",
+            options: locations.map((l) => ({ value: l.id, label: l.name })),
+          },
+        ]}
+        totalItems={count ?? 0}
+        page={page}
+        pageSize={pageSize}
+      />
       <Table>
         <TableHeader>
           <TableRow>
