@@ -2,7 +2,7 @@ import { requireRole } from "@/lib/auth/guard";
 import { AppShell, type NavItem } from "@/components/shared/app-shell";
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/admin", label: "Dasbor" },
+  { href: "/admin", label: "Dashboard" },
   { href: "/admin/members", label: "Anggota" },
   { href: "/admin/coaches", label: "Pelatih" },
   { href: "/admin/schedule", label: "Jadwal" },
@@ -12,7 +12,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin/cash-ledger", label: "Buku Kas" },
   { href: "/admin/payroll", label: "Gaji Pelatih" },
   { href: "/admin/promo", label: "Promo" },
-  { href: "/admin/reports", label: "Laporan" },
   { href: "/admin/settings", label: "Pengaturan" },
 ];
 
