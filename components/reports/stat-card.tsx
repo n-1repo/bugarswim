@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <Card>
+    <Card className="border-t-2 border-t-gold">
       <CardHeader>
         <CardTitle className="text-sm font-normal text-muted-foreground">{title}</CardTitle>
       </CardHeader>
