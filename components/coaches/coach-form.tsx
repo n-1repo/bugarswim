@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 
-export function CoachForm() {
+export function CoachForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, formAction, pending] = useActionState(createCoach, {});
-  useActionToast(state, "Pelatih berhasil ditambahkan");
+  useActionToast(state, "Pelatih berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

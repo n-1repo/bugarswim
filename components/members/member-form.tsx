@@ -17,9 +17,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 import type { Lookup } from "@/lib/data/lookups";
 
-export function MemberForm({ locations }: { locations: Lookup[] }) {
+export function MemberForm({
+  locations,
+  onSuccess,
+}: {
+  locations: Lookup[];
+  onSuccess?: () => void;
+}) {
   const [state, formAction, pending] = useActionState(createChild, {});
-  useActionToast(state, "Anggota berhasil ditambahkan");
+  useActionToast(state, "Anggota berhasil ditambahkan", onSuccess);
   const [parentMode, setParentMode] = useState<"existing" | "new">("existing");
   const [existingParentId, setExistingParentId] = useState<string | null>(null);
 

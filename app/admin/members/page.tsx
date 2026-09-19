@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getLocations } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { buttonVariants } from "@/components/ui/button";
+import { AddMemberDialog } from "@/components/members/add-member-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -61,9 +61,7 @@ export default async function MembersPage({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Anggota</h1>
-        <Link href="/admin/members/new" className={buttonVariants({})}>
-          Tambah Anggota
-        </Link>
+        <AddMemberDialog locations={locations} />
       </div>
       <ListControls
         searchPlaceholder="Cari nama anak..."

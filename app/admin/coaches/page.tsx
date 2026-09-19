@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { buttonVariants } from "@/components/ui/button";
+import { AddCoachDialog } from "@/components/coaches/add-coach-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -35,9 +35,7 @@ export default async function CoachesPage({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Pelatih</h1>
-        <Link href="/admin/coaches/new" className={buttonVariants({})}>
-          Tambah Pelatih
-        </Link>
+        <AddCoachDialog />
       </div>
       <ListControls
         searchPlaceholder="Cari nama atau email..."

@@ -1,7 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -11,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AdjustmentForm } from "@/components/cash-ledger/adjustment-form";
+import { AddAdjustmentDialog } from "@/components/cash-ledger/add-adjustment-dialog";
 
 const CATEGORY_LABEL: Record<string, string> = {
   payment_received: "Pembayaran Diterima",
@@ -49,9 +48,12 @@ export default async function CashLedgerPage({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Buku Kas</h1>
-        <Badge variant={Number(latestBalance) >= 0 ? "success" : "destructive"} className="text-xs">
-          Saldo: Rp {Number(latestBalance).toLocaleString("id-ID")}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={Number(latestBalance) >= 0 ? "success" : "destructive"} className="text-xs">
+            Saldo: Rp {Number(latestBalance).toLocaleString("id-ID")}
+          </Badge>
+          <AddAdjustmentDialog />
+        </div>
       </div>
 
       <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Transaksi</h2>
@@ -111,15 +113,6 @@ export default async function CashLedgerPage({
           ) : null}
         </TableBody>
       </Table>
-
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Tambah Penyesuaian Manual</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AdjustmentForm />
-        </CardContent>
-      </Card>
     </div>
   );
 }

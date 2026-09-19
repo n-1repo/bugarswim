@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveCoaches, getClassTypes, getLocations } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { buttonVariants } from "@/components/ui/button";
+import { AddClassDialog } from "@/components/schedule/add-class-dialog";
 import {
   Table,
   TableBody,
@@ -62,9 +62,7 @@ export default async function SchedulePage({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Jadwal Kelas</h1>
-        <Link href="/admin/schedule/new" className={buttonVariants({})}>
-          Tambah Kelas
-        </Link>
+        <AddClassDialog coaches={coaches} locations={locations} classTypes={classTypes} />
       </div>
       <ListControls
         filters={[

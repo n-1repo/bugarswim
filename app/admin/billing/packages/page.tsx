@@ -1,7 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PackageForm } from "@/components/billing/package-form";
+import { AddPackageDialog } from "@/components/billing/add-package-dialog";
 
 export default async function PackagesPage({
   searchParams,
@@ -31,7 +30,10 @@ export default async function PackagesPage({
 
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-xl font-semibold">Paket Keanggotaan</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Paket Keanggotaan</h1>
+        <AddPackageDialog />
+      </div>
       <h2 className="text-xs font-semibold text-muted-foreground">Daftar Paket</h2>
       <ListControls
         searchPlaceholder="Cari nama paket..."
@@ -76,14 +78,6 @@ export default async function PackagesPage({
           ) : null}
         </TableBody>
       </Table>
-      <Card className="max-w-md">
-        <CardHeader>
-          <CardTitle>Tambah Paket Baru</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PackageForm />
-        </CardContent>
-      </Card>
     </div>
   );
 }

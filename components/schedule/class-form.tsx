@@ -14,13 +14,15 @@ export function ClassForm({
   coaches,
   locations,
   classTypes,
+  onSuccess,
 }: {
   coaches: Lookup[];
   locations: Lookup[];
   classTypes: Lookup[];
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(createClass, {});
-  useActionToast(state, "Kelas berhasil ditambahkan");
+  useActionToast(state, "Kelas berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

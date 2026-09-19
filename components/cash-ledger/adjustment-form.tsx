@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 
-export function AdjustmentForm() {
+export function AdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, formAction, pending] = useActionState(addManualAdjustment, {});
-  useActionToast(state, "Penyesuaian berhasil ditambahkan");
+  useActionToast(state, "Penyesuaian berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

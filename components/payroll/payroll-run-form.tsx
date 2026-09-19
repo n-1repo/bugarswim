@@ -10,9 +10,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 import type { Lookup } from "@/lib/data/lookups";
 
-export function PayrollRunForm({ coaches }: { coaches: Lookup[] }) {
+export function PayrollRunForm({
+  coaches,
+  onSuccess,
+}: {
+  coaches: Lookup[];
+  onSuccess?: () => void;
+}) {
   const [state, formAction, pending] = useActionState(createPayrollRun, {});
-  useActionToast(state, "Gaji berhasil dibuat");
+  useActionToast(state, "Gaji berhasil dibuat", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

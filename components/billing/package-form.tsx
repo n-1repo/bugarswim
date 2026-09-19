@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useActionToast } from "@/components/shared/use-action-toast";
 
-export function PackageForm() {
+export function PackageForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, formAction, pending] = useActionState(createPackage, {});
-  useActionToast(state, "Paket berhasil ditambahkan");
+  useActionToast(state, "Paket berhasil ditambahkan", onSuccess);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">

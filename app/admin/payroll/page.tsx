@@ -2,7 +2,6 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getActiveCoaches } from "@/lib/data/lookups";
 import { parsePagination } from "@/lib/list-params";
 import { ListControls } from "@/components/shared/list-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -12,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PayrollRunForm } from "@/components/payroll/payroll-run-form";
+import { AddPayrollDialog } from "@/components/payroll/add-payroll-dialog";
 
 export default async function PayrollPage({
   searchParams,
@@ -41,7 +40,10 @@ export default async function PayrollPage({
 
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-xl font-semibold">Gaji Pelatih</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Gaji Pelatih</h1>
+        <AddPayrollDialog coaches={activeCoaches} />
+      </div>
 
       <h2 className="text-xs font-semibold text-muted-foreground">Riwayat Gaji</h2>
       <ListControls
@@ -117,15 +119,6 @@ export default async function PayrollPage({
           ) : null}
         </TableBody>
       </Table>
-
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Buat Gaji Baru</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PayrollRunForm coaches={activeCoaches} />
-        </CardContent>
-      </Card>
     </div>
   );
 }
